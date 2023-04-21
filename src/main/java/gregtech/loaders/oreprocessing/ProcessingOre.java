@@ -1,8 +1,10 @@
 package gregtech.loaders.oreprocessing;
 
+import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sBlastRecipes;
 import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sCentrifugeRecipes;
 import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sHammerRecipes;
 import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
+import static gregtech.api.util.GT_RecipeConstants.COIL_HEAT;
 
 import java.util.ArrayList;
 
@@ -155,53 +157,71 @@ public class ProcessingOre implements gregtech.api.interfaces.IOreRecipeRegistra
 
             if (aMaterial.contains(SubTag.BLASTFURNACE_CALCITE_TRIPLE)) {
                 if (aMaterial.mAutoGenerateBlastFurnaceRecipes) {
-                    GT_Values.RA.addBlastRecipe(
-                        aOreStack,
-                        GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Calcite, aMultiplier),
-                        null,
-                        null,
-                        GT_Utility.mul(aMultiplier * 3 * aMaterial.mSmeltingMultiplier, tSmeltInto),
-                        ItemList.TE_Slag
-                            .get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L)),
-                        tSmeltInto.stackSize * 500,
-                        120,
-                        1500);
-                    GT_Values.RA.addBlastRecipe(
-                        aOreStack,
-                        GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Quicklime, aMultiplier),
-                        null,
-                        null,
-                        GT_Utility.mul(aMultiplier * 3 * aMaterial.mSmeltingMultiplier, tSmeltInto),
-                        ItemList.TE_Slag
-                            .get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L)),
-                        tSmeltInto.stackSize * 500,
-                        120,
-                        1500);
+                    GT_Values.RA.stdBuilder()
+                        .itemInputs(
+                            aOreStack,
+                            GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Calcite, aMultiplier)
+                        )
+                        .itemOutputs(
+                            GT_Utility.mul(aMultiplier * 3 * aMaterial.mSmeltingMultiplier, tSmeltInto),
+                            ItemList.TE_Slag.get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L))
+                        )
+                        .noFluidInputs()
+                        .noFluidOutputs()
+                        .metadata(COIL_HEAT,1500)
+                        .duration(tSmeltInto.stackSize * 500)
+                        .eut(TierEU.RECIPE_MV)
+                        .addTo(sBlastRecipes);
+
+                    GT_Values.RA.stdBuilder()
+                        .itemInputs(
+                            aOreStack,
+                            GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Quicklime, aMultiplier)
+                        )
+                        .itemOutputs(
+                            GT_Utility.mul(aMultiplier * 3 * aMaterial.mSmeltingMultiplier, tSmeltInto),
+                            ItemList.TE_Slag.get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L))
+                        )
+                        .noFluidInputs()
+                        .noFluidOutputs()
+                        .metadata(COIL_HEAT,1500)
+                        .duration(tSmeltInto.stackSize * 500)
+                        .eut(TierEU.RECIPE_MV)
+                        .addTo(sBlastRecipes);
                 }
             } else if (aMaterial.contains(SubTag.BLASTFURNACE_CALCITE_DOUBLE)) {
                 if (aMaterial.mAutoGenerateBlastFurnaceRecipes) {
-                    GT_Values.RA.addBlastRecipe(
-                        aOreStack,
-                        GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Calcite, aMultiplier),
-                        null,
-                        null,
-                        GT_Utility.mul(aMultiplier * 2 * aMaterial.mSmeltingMultiplier, tSmeltInto),
-                        ItemList.TE_Slag
-                            .get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L)),
-                        tSmeltInto.stackSize * 500,
-                        120,
-                        1500);
-                    GT_Values.RA.addBlastRecipe(
-                        aOreStack,
-                        GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Quicklime, aMultiplier),
-                        null,
-                        null,
-                        GT_Utility.mul(aMultiplier * 2 * aMaterial.mSmeltingMultiplier, tSmeltInto),
-                        ItemList.TE_Slag
-                            .get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L)),
-                        tSmeltInto.stackSize * 500,
-                        120,
-                        1500);
+                    GT_Values.RA.stdBuilder()
+                        .itemInputs(
+                            aOreStack,
+                            GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Calcite, aMultiplier)
+                        )
+                        .itemOutputs(
+                            GT_Utility.mul(aMultiplier * 2 * aMaterial.mSmeltingMultiplier, tSmeltInto),
+                            ItemList.TE_Slag.get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L))
+                        )
+                        .noFluidInputs()
+                        .noFluidOutputs()
+                        .metadata(COIL_HEAT,1500)
+                        .duration(tSmeltInto.stackSize * 500)
+                        .eut(TierEU.RECIPE_MV)
+                        .addTo(sBlastRecipes);
+
+                    GT_Values.RA.stdBuilder()
+                        .itemInputs(
+                            aOreStack,
+                            GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Quicklime, aMultiplier)
+                        )
+                        .itemOutputs(
+                            GT_Utility.mul(aMultiplier * 2 * aMaterial.mSmeltingMultiplier, tSmeltInto),
+                            ItemList.TE_Slag.get(1L, GT_OreDictUnificator.get(OrePrefixes.dustSmall, Materials.DarkAsh, 1L))
+                        )
+                        .noFluidInputs()
+                        .noFluidOutputs()
+                        .metadata(COIL_HEAT,1500)
+                        .duration(tSmeltInto.stackSize * 500)
+                        .eut(TierEU.RECIPE_MV)
+                        .addTo(sBlastRecipes);
                 }
             }
         }

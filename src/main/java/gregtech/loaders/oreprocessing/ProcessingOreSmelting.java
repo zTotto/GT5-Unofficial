@@ -9,6 +9,9 @@ import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_OreDictUnificator;
 import gregtech.api.util.GT_Utility;
 
+import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sBlastRecipes;
+import static gregtech.api.util.GT_RecipeConstants.COIL_HEAT;
+
 public class ProcessingOreSmelting implements gregtech.api.interfaces.IOreRecipeRegistrator {
 
     private final OrePrefixes[] mSmeltingPrefixes = { OrePrefixes.crushed, OrePrefixes.crushedPurified,
@@ -27,20 +30,20 @@ public class ProcessingOreSmelting implements gregtech.api.interfaces.IOreRecipe
             if ((aMaterial.mBlastFurnaceRequired) || (aMaterial.mDirectSmelting.mBlastFurnaceRequired)) {
                 if (aMaterial.mBlastFurnaceTemp < 1000 && aMaterial.mDirectSmelting.mBlastFurnaceTemp < 1000)
                     if (aMaterial.mAutoGenerateBlastFurnaceRecipes) {
-                        GT_Values.RA.addBlastRecipe(
-                            GT_Utility.copyAmount(1L, aStack),
-                            ItemList.Circuit_Integrated.getWithDamage(0L, 1L),
-                            null,
-                            null,
-                            aMaterial.mBlastFurnaceTemp > 1750 ? GT_OreDictUnificator.get(
-                                OrePrefixes.ingotHot,
-                                aMaterial,
-                                GT_OreDictUnificator.get(OrePrefixes.ingot, aMaterial, 1L),
-                                1L) : GT_OreDictUnificator.get(OrePrefixes.ingot, aMaterial, 1L),
-                            null,
-                            (int) Math.max(aMaterial.getMass() / 4L, 1L) * aMaterial.mBlastFurnaceTemp,
-                            120,
-                            aMaterial.mBlastFurnaceTemp);
+                        GT_Values.RA.stdBuilder()
+                            .itemInputs(
+                                GT_Utility.copyAmount(1L, aStack),
+                                ItemList.Circuit_Integrated.getWithDamage(0L, 1L)
+                            )
+                            .itemOutputs(
+                                aMaterial.mBlastFurnaceTemp > 1750 ? GT_OreDictUnificator.get(OrePrefixes.ingotHot,aMaterial,GT_OreDictUnificator.get(OrePrefixes.ingot, aMaterial, 1L), 1L) : GT_OreDictUnificator.get(OrePrefixes.ingot, aMaterial, 1L)
+                            )
+                            .noFluidInputs()
+                            .noFluidOutputs()
+                            .metadata(COIL_HEAT, (int) aMaterial.mBlastFurnaceTemp)
+                            .duration(Math.max(aMaterial.getMass() / 4L, 1L) * aMaterial.mBlastFurnaceTemp)
+                            .eut(TierEU.RECIPE_MV)
+                            .addTo(sBlastRecipes);
                     }
             } else {
                 OrePrefixes outputPrefix;

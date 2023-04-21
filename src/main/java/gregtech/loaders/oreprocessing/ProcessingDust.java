@@ -1,9 +1,11 @@
 package gregtech.loaders.oreprocessing;
 
+import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sBlastRecipes;
 import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sCentrifugeRecipes;
 import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sCompressorRecipes;
 import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sElectrolyzerRecipes;
 import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
+import static gregtech.api.util.GT_RecipeConstants.COIL_HEAT;
 
 import java.util.ArrayList;
 
@@ -62,19 +64,18 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                     if (aMaterial.mBlastFurnaceRequired) {
                         GT_ModHandler.removeFurnaceSmelting(aStack);
                         if (aMaterial.mAutoGenerateBlastFurnaceRecipes) {
-                            GT_Values.RA.addBlastRecipe(
-                                GT_Utility.copyAmount(1L, aStack),
-                                ItemList.Circuit_Integrated.getWithDamage(0L, 1L),
-                                null,
-                                null,
-                                aMaterial.mBlastFurnaceTemp > 1750
-                                    ? GT_OreDictUnificator
-                                        .get(OrePrefixes.ingotHot, aMaterial.mSmeltInto, tDustStack, 1L)
-                                    : GT_Utility.copyAmount(1L, tDustStack),
-                                null,
-                                (int) Math.max(aMaterial.getMass() / 40L, 1L) * aMaterial.mBlastFurnaceTemp,
-                                120,
-                                aMaterial.mBlastFurnaceTemp);
+                            GT_Values.RA.stdBuilder()
+                                .itemInputs(
+                                    GT_Utility.copyAmount(1L, aStack),
+                                    ItemList.Circuit_Integrated.getWithDamage(0L, 1L)
+                                )
+                                .itemOutputs(aMaterial.mBlastFurnaceTemp > 1750 ? GT_OreDictUnificator.get(OrePrefixes.ingotHot, aMaterial.mSmeltInto, tDustStack, 1L) : GT_Utility.copyAmount(1L, tDustStack))
+                                .noFluidInputs()
+                                .noFluidOutputs()
+                                .metadata(COIL_HEAT,(int) aMaterial.mBlastFurnaceTemp)
+                                .duration(Math.max(aMaterial.getMass() / 40L, 1L) * aMaterial.mBlastFurnaceTemp)
+                                .eut(TierEU.RECIPE_MV)
+                                .addTo(sBlastRecipes);
                         }
                     } else {
                         GT_ModHandler.addSmeltingRecipe(aStack, tDustStack);

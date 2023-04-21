@@ -556,12 +556,14 @@ public class GT_RecipeAdder implements IGT_RecipeAdder {
             30);
     }
 
+    @Deprecated
     @Override
     public boolean addBlastRecipe(ItemStack aInput1, ItemStack aInput2, ItemStack aOutput1, ItemStack aOutput2,
         int aDuration, int aEUt, int aLevel) {
         return addBlastRecipe(aInput1, aInput2, null, null, aOutput1, aOutput2, aDuration, aEUt, aLevel);
     }
 
+    @Deprecated
     @Override
     public boolean addBlastRecipe(ItemStack aInput1, ItemStack aInput2, FluidStack aFluidInput, FluidStack aFluidOutput,
         ItemStack aOutput1, ItemStack aOutput2, int aDuration, int aEUt, int aLevel) {
@@ -585,6 +587,7 @@ public class GT_RecipeAdder implements IGT_RecipeAdder {
         return true;
     }
 
+    @Deprecated
     public boolean addBlastRecipe(ItemStack aInput1, ItemStack aInput2, ItemStack aInput3, ItemStack aInput4,
         FluidStack aFluidInput, FluidStack aFluidOutput, ItemStack aOutput1, ItemStack aOutput2, ItemStack aOutput3,
         ItemStack aOutput4, int aDuration, int aEUt, int aLevel) {
