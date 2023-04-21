@@ -611,6 +611,7 @@ public class GT_RecipeAdder implements IGT_RecipeAdder {
         return true;
     }
 
+    @Deprecated
     @Override
     public boolean addPlasmaForgeRecipe(ItemStack[] ItemInputArray, FluidStack[] FluidInputArray,
         ItemStack[] OutputItemArray, FluidStack[] FluidOutputArray, int aDuration, int aEUt, int coil_heat_level) {
