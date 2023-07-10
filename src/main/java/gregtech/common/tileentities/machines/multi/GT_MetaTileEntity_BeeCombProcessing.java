@@ -14,10 +14,9 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_PROCESSING_AR
 import static gregtech.api.util.GT_StructureUtility.*;
 
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -28,6 +27,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.*;
 
 import gregtech.api.GregTech_API;
+import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
@@ -39,8 +39,10 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
+import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.items.CombType;
+import gregtech.common.items.ItemComb;
 
 public class GT_MetaTileEntity_BeeCombProcessing
     extends GT_MetaTileEntity_ExtendedPowerMultiBlockBase<GT_MetaTileEntity_BeeCombProcessing>
@@ -193,19 +195,46 @@ public class GT_MetaTileEntity_BeeCombProcessing
     public CheckRecipeResult checkProcessing() {
         List<ItemStack> tInput = getStoredInputs();
         List<FluidStack> tInputFluid = getStoredFluids();
-        for (ItemStack comb : tInput) {
-            if (getCombFromItemStack(comb) instanceof CombType) {
-                MinecraftServer.getServer()
-                    .getConfigurationManager()
-                    .sendChatMsg(new ChatComponentText("ALELUJA"));
+        boolean foundRecipe = false;
+        for (ItemStack combStack : tInput) {
+            CombType comb = getCombFromItemStack(combStack);
+            if (comb != null) {
+                GT_Recipe tRecipe = GT_Recipe.GT_Recipe_Map.sCentrifugeRecipes
+                    .findRecipe(getBaseMetaTileEntity(), false, GT_Values.V[15], null, combStack);
+                if (tRecipe != null) {
+                    for (int i = 0, mOutputsLength = tRecipe.mOutputs.length; i < mOutputsLength; i++) {
+                        if (tRecipe.getOutput(i) == null) continue;
+                        int chance = tRecipe.getOutputChance(i);
+                        chance *= combStack.stackSize;
+                        double times = (double) chance / 10000d;
+                        int itimes = (int) Math.floor(times);
+                        Random rnd = new Random();
+                        if ((times - itimes) < rnd.nextDouble()) itimes += 1;
+                        if (itimes > 0) addOutput(
+                            GT_Utility.copyAmountUnsafe(
+                                (long) tRecipe.getOutput(i).stackSize * itimes,
+                                tRecipe.getOutput(i)));
+                    }
+                    combStack.stackSize = 0;
+                }
+                foundRecipe = true;
             }
+        }
+
+        if (foundRecipe) {
+            this.lEUt = 0;
+            this.mEfficiency = 10000;
+            this.mEfficiencyIncrease = 10000;
+            this.mMaxProgresstime = 100;
+            this.updateSlots();
+            return CheckRecipeResultRegistry.SUCCESSFUL;
         }
 
         return CheckRecipeResultRegistry.NO_RECIPE;
     }
 
     public CombType getCombFromItemStack(ItemStack stack) {
-        return CombType.valueOf(stack.getItemDamage());
+        return stack.getItem() instanceof ItemComb ? CombType.valueOf(stack.getItemDamage()) : null;
     }
 
     @Override
