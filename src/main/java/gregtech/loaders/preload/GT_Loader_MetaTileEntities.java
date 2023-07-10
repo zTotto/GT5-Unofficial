@@ -79,6 +79,7 @@ import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Teleporter;
 import gregtech.common.tileentities.machines.long_distance.GT_MetaTileEntity_LongDistancePipelineFluid;
 import gregtech.common.tileentities.machines.long_distance.GT_MetaTileEntity_LongDistancePipelineItem;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_AssemblyLine;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_BeeCombProcessing;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_BrickedBlastFurnace;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_BronzeBlastFurnace;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_Charcoal_Pit;
@@ -1725,6 +1726,12 @@ public class GT_Loader_MetaTileEntities implements Runnable { // TODO CHECK CIRC
         ItemList.Processing_Array.set(
             new GT_MetaTileEntity_ProcessingArray(1199, "multimachine.processingarray", "Processing Array")
                 .getStackForm(1L));
+        ItemList.Bee_Comb_Processor.set(
+            new GT_MetaTileEntity_BeeCombProcessing(
+                777,
+                "multimachine.beecombprocessor",
+                "Colossal Omnifunctional Mechanism for Bees: Jubilant Unveiling of Ingenious Comb Extraction and Refinement")
+                    .getStackForm(1L));
         ItemList.Distillation_Tower.set(
             new GT_MetaTileEntity_DistillationTower(1126, "multimachine.distillationtower", "Distillation Tower")
                 .getStackForm(1L));

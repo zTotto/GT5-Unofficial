@@ -605,6 +605,28 @@ public class GT_Values {
         + EnumChatFormatting.LIGHT_PURPLE
         + "minecraft7771";
 
+    public static final String AuthorRunakai = "Author: " + EnumChatFormatting.DARK_RED
+        + EnumChatFormatting.BOLD
+        + "R"
+        + EnumChatFormatting.RED
+        + EnumChatFormatting.BOLD
+        + "u"
+        + EnumChatFormatting.GOLD
+        + EnumChatFormatting.BOLD
+        + "n"
+        + EnumChatFormatting.YELLOW
+        + EnumChatFormatting.BOLD
+        + "a"
+        + EnumChatFormatting.DARK_GREEN
+        + EnumChatFormatting.BOLD
+        + "k"
+        + EnumChatFormatting.GREEN
+        + EnumChatFormatting.BOLD
+        + "a"
+        + EnumChatFormatting.AQUA
+        + EnumChatFormatting.BOLD
+        + "i";
+
     // 7.5F comes from GT_Tool_Turbine_Large#getBaseDamage() given huge turbines are the most efficient now.
     public static double getMaxPlasmaTurbineEfficiencyFromMaterial(Materials material) {
         return (5F + (7.5F + material.mToolQuality)) / 10.0;
