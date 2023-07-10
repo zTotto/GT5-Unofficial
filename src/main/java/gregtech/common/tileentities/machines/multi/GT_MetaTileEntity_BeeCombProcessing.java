@@ -13,6 +13,7 @@ import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_PROCESSING_ARRAY_GLOW;
 import static gregtech.api.util.GT_StructureUtility.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -196,6 +197,7 @@ public class GT_MetaTileEntity_BeeCombProcessing
         List<ItemStack> tInput = getStoredInputs();
         List<FluidStack> tInputFluid = getStoredFluids();
         boolean foundRecipe = false;
+        ArrayList<ItemStack> toOutput = new ArrayList<>();
         for (ItemStack combStack : tInput) {
             CombType comb = getCombFromItemStack(combStack);
             if (comb != null) {
@@ -209,8 +211,8 @@ public class GT_MetaTileEntity_BeeCombProcessing
                         double times = (double) chance / 10000d;
                         int itimes = (int) Math.floor(times);
                         Random rnd = new Random();
-                        if ((times - itimes) < rnd.nextDouble()) itimes += 1;
-                        if (itimes > 0) addOutput(
+                        if (rnd.nextDouble() < (times - itimes)) itimes += 1;
+                        if (itimes > 0) toOutput.add(
                             GT_Utility.copyAmountUnsafe(
                                 (long) tRecipe.getOutput(i).stackSize * itimes,
                                 tRecipe.getOutput(i)));
@@ -222,6 +224,7 @@ public class GT_MetaTileEntity_BeeCombProcessing
         }
 
         if (foundRecipe) {
+            this.mOutputItems = toOutput.toArray(new ItemStack[0]);
             this.lEUt = 0;
             this.mEfficiency = 10000;
             this.mEfficiencyIncrease = 10000;
