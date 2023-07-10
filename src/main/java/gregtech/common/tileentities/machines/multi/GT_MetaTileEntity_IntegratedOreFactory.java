@@ -36,6 +36,8 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.gtnewhorizon.structurelib.alignment.IAlignmentLimits;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
@@ -54,6 +56,8 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Muffler;
 import gregtech.api.multitileentity.multiblock.casing.Glasses;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
@@ -205,14 +209,14 @@ public class GT_MetaTileEntity_IntegratedOreFactory extends
             .addSeparator()
             .beginStructureBlock(6, 12, 11, false)
             .addController("The third layer")
-            .addStructureInfo("128 advanced iridium plated machine casing")
-            .addStructureInfo("105 clean stainless steel machine casing")
-            .addStructureInfo("48 reinforced glass")
-            .addStructureInfo("30 tungstensteel pipe casing")
-            .addStructureInfo("16 tungstensteel frame box")
-            .addStructureInfo("16 steel gear box casing")
-            .addEnergyHatch("Button Casing", 1)
-            .addMaintenanceHatch("Button Casing", 1)
+            .addStructureInfo("128 Advanced Iridium Plated Machine Casing")
+            .addStructureInfo("105 Clean Stainless Steel Machine Casing")
+            .addStructureInfo("48 Reinforced Glass")
+            .addStructureInfo("30 Tungstensteel Pipe Casing")
+            .addStructureInfo("16 Tungstensteel Frame Box")
+            .addStructureInfo("16 Steel Gear Box Casing")
+            .addEnergyHatch("Any bottom Casing", 1)
+            .addMaintenanceHatch("Any bottom Casing", 1)
             .addInputBus("Input ore/crushed ore", 2)
             .addInputHatch("Input lubricant/distilled water/washing chemicals", 3)
             .addMufflerHatch("Output Pollution", 3)
@@ -256,7 +260,8 @@ public class GT_MetaTileEntity_IntegratedOreFactory extends
     }
 
     @Override
-    public boolean checkRecipe(ItemStack aStack) {
+    @NotNull
+    public CheckRecipeResult checkProcessing() {
         if (!isInit) {
             initHash();
             isInit = true;
@@ -311,7 +316,7 @@ public class GT_MetaTileEntity_IntegratedOreFactory extends
         setCurrentParallelism(tRealUsed);
 
         if (tRealUsed == 0) {
-            return false;
+            return CheckRecipeResultRegistry.NO_RECIPE;
         }
 
         depleteInput(GT_ModHandler.getDistilledWater(tRealUsed * 200L));
@@ -349,7 +354,7 @@ public class GT_MetaTileEntity_IntegratedOreFactory extends
                 doCentrifuge(isImpureDust, isPureDust);
             }
             default -> {
-                return false;
+                return CheckRecipeResultRegistry.NO_RECIPE;
             }
         }
 
@@ -362,7 +367,7 @@ public class GT_MetaTileEntity_IntegratedOreFactory extends
         }
         this.updateSlots();
 
-        return true;
+        return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     @SafeVarargs

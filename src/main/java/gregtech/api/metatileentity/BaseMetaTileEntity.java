@@ -58,6 +58,8 @@ import gregtech.api.enums.Textures;
 import gregtech.api.graphs.GenerateNodeMap;
 import gregtech.api.graphs.GenerateNodeMapPower;
 import gregtech.api.graphs.Node;
+import gregtech.api.interfaces.ICleanroom;
+import gregtech.api.interfaces.ICleanroomReceiver;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IDebugableTileEntity;
@@ -83,8 +85,9 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
  * <p/>
  * This is the main TileEntity for EVERYTHING.
  */
-public class BaseMetaTileEntity extends CommonMetaTileEntity implements IGregTechTileEntity, IActionHost,
-    IGridProxyable, IAlignmentProvider, IConstructableProvider, IDebugableTileEntity, IGregtechWailaProvider {
+public class BaseMetaTileEntity extends CommonMetaTileEntity
+    implements IGregTechTileEntity, IActionHost, IGridProxyable, IAlignmentProvider, IConstructableProvider,
+    IDebugableTileEntity, IGregtechWailaProvider, ICleanroomReceiver {
 
     private static final Field ENTITY_ITEM_HEALTH_FIELD = ReflectionHelper
         .findField(EntityItem.class, "health", "field_70291_e");
@@ -592,6 +595,12 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity implements IGregTec
         } catch (Throwable e) {
             e.printStackTrace();
             e.printStackTrace(GT_Log.err);
+            try {
+                mMetaTileEntity.onTickFail(this, mTickTimer);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+                ex.printStackTrace(GT_Log.err);
+            }
         }
 
         if (aSideServer && hasValidMetaTileEntity()) {
@@ -1017,6 +1026,9 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity implements IGregTec
     @Override
     public void disableWorking() {
         mWorks = false;
+        if (hasValidMetaTileEntity()) {
+            mMetaTileEntity.onDisableWorking();
+        }
     }
 
     @Override
@@ -1057,6 +1069,9 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity implements IGregTec
     @Override
     public void setActive(boolean aActive) {
         mActive = aActive;
+        if (hasValidMetaTileEntity()) {
+            mMetaTileEntity.onSetActive(aActive);
+        }
     }
 
     @Override
@@ -1310,6 +1325,22 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity implements IGregTec
         return mLockUpgrade || mMetaTileEntity.ownerControl();
     }
 
+    @Nullable
+    @Override
+    public ICleanroom getCleanroom() {
+        if (canAccessData()) {
+            return mMetaTileEntity.getCleanroom();
+        }
+        return null;
+    }
+
+    @Override
+    public void setCleanroom(ICleanroom cleanroom) {
+        if (canAccessData()) {
+            mMetaTileEntity.setCleanroom(cleanroom);
+        }
+    }
+
     public void doEnergyExplosion() {
         if (getUniversalEnergyCapacity() > 0 && getUniversalEnergyStored() >= getUniversalEnergyCapacity() / 5) {
             GT_Log.exp.println(
@@ -1358,7 +1389,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity implements IGregTec
                 }
             }
 
-            GT_Pollution.addPollution(this, GT_Mod.gregtechproxy.mPollutionOnExplosion);
+            GT_Pollution.addPollution((TileEntity) this, GT_Mod.gregtechproxy.mPollutionOnExplosion);
             mMetaTileEntity.doExplosion(aAmount);
         }
     }

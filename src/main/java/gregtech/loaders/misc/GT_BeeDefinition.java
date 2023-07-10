@@ -1776,6 +1776,23 @@ public enum GT_BeeDefinition implements IBeeDefinition {
             tMutation.addMutationCondition(new GT_Bees.DimensionMutationCondition(46, "Oberon")); // Oberon Dim
         }
     }),
+    INFUSEDGOLD(GT_BranchDefinition.SPACE, "Infused Gold", false, new Color(0x80641E), new Color(0xFFC83C),
+        beeSpecies -> {
+            beeSpecies.addProduct(GT_Bees.combs.getStackForType(CombType.GOLD), 0.20f);
+            beeSpecies.addSpecialty(GT_Bees.combs.getStackForType(CombType.INFUSEDGOLD), 0.30f);
+            beeSpecies.setHumidity(DAMP);
+            beeSpecies.setTemperature(ICY);
+            beeSpecies.setNocturnal();
+            beeSpecies.setHasEffect();
+        }, template -> {}, new Consumer<>() {
+
+            @Override
+            public void accept(GT_BeeDefinition dis) {
+                IBeeMutationCustom tMutation = dis.registerMutation(GOLD, HAUMEA, 5);
+                tMutation.requireResource(GregTech_API.sBlockMetal3, 10);
+                tMutation.addMutationCondition(new GT_Bees.DimensionMutationCondition(83, "Haumea")); // Haumea Dim
+            }
+        }),
     MYSTERIOUSCRYSTAL(GT_BranchDefinition.SPACE, "MysteriousCrystal", false, new Color(0x3CB371), new Color(0x16856C),
         beeSpecies -> {
             beeSpecies.addProduct(GT_Bees.combs.getStackForType(CombType.SPACE), 0.42f);
@@ -2338,7 +2355,7 @@ public enum GT_BeeDefinition implements IBeeDefinition {
             tMutation.requireResource(GameRegistry.findBlock(AvaritiaAddons.ID, "InfinityChest"), 0);
         }
     }),
-    KEVLAR(GT_BranchDefinition.IC2, "kevlar", false, new Color(0x2d542f), new Color(0xa2baa3), beeSpecies -> {
+    KEVLAR(GT_BranchDefinition.IC2, "Kevlar", false, new Color(0x2d542f), new Color(0xa2baa3), beeSpecies -> {
         beeSpecies.addSpecialty(GT_Bees.combs.getStackForType(CombType.KEVLAR), 0.075f);
         beeSpecies.addSpecialty(MaterialsKevlar.Kevlar.getNuggets(1), 0.01f);
         beeSpecies.setHumidity(DAMP);
@@ -2354,8 +2371,9 @@ public enum GT_BeeDefinition implements IBeeDefinition {
         AlleleHelper.instance.set(template, FLOWER_PROVIDER, Flowers.SNOW);
         AlleleHelper.instance.set(template, FLOWERING, Flowering.AVERAGE);
     }, dis -> {
-        IBeeMutationCustom tMutation = dis.registerMutation(OIL, INFINITY, 4);
-        tMutation.requireResource("frameGtKevlar");
+        IBeeMutationCustom tMutation = dis.registerMutation(OIL, INFINITYCATALYST, 4);
+        // UHV Replicator (UU-Matter)
+        GregTech_API.sGTCompleteLoad.add(() -> tMutation.requireResource(GregTech_API.sBlockMachines, 11003));
     }),
 
     // Noble Gas Line
@@ -2565,7 +2583,7 @@ public enum GT_BeeDefinition implements IBeeDefinition {
             beeSpecies.setHasEffect();
         }, template -> AlleleHelper.instance.set(template, LIFESPAN, Lifespan.SHORTEST), dis -> {
             IBeeMutationCustom tMutation = dis.registerMutation(INFINITYCATALYST, NAQUADRIA, 5);
-            tMutation.requireResource(GameRegistry.findBlock(GregTech.ID, "gt.blockmachines"), 4684);
+            tMutation.requireResource(GregTech_API.sBlockMachines, 4684);
             tMutation.addMutationCondition(new GT_Bees.DimensionMutationCondition(100, "Deep Dark")); // Deep Dark
                                                                                                       // dim
         });

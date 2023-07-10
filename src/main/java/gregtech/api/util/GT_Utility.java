@@ -493,6 +493,16 @@ public class GT_Utility {
         return ceilDiv(voltage, GT_Values.V[tier]);
     }
 
+    /**
+     * Rounds down partial voltage that exceeds tiered voltage, e.g. 4096 -> 2048 (EV)
+     */
+    public static long roundDownVoltage(long voltage) {
+        if (voltage > V[V.length - 1]) {
+            return voltage;
+        }
+        return V[GT_Utility.getTier(voltage)];
+    }
+
     public static String getColoredTierNameFromVoltage(long voltage) {
         return getColoredTierNameFromTier(getTier(voltage));
     }
@@ -501,6 +511,9 @@ public class GT_Utility {
         return GT_Values.TIER_COLORS[tier] + GT_Values.VN[tier] + EnumChatFormatting.RESET;
     }
 
+    /**
+     * @return e.g. {@code " (LV)"}
+     */
     @Nonnull
     public static String getTierNameWithParentheses(long voltage) {
         byte tier = getTier(voltage);
@@ -1713,6 +1726,10 @@ public class GT_Utility {
                 || Items.feather.getDamage(aStack2) == W);
     }
 
+    public static boolean areStacksEqualOrNull(ItemStack stack1, ItemStack stack2) {
+        return (stack1 == null && stack2 == null) || GT_Utility.areStacksEqual(stack1, stack2);
+    }
+
     /**
      * Treat both null list, or both null item stack at same list position as equal.
      * <p>
@@ -2738,19 +2755,15 @@ public class GT_Utility {
     }
 
     private static boolean applyHeatDamage(EntityLivingBase aEntity, float aDamage, DamageSource source) {
-        if (aDamage > 0 && aEntity != null
-            && aEntity.getActivePotionEffect(Potion.fireResistance) == null
-            && !isWearingFullHeatHazmat(aEntity)) {
-            aEntity.attackEntityFrom(source, aDamage);
-            return true;
+        if (aDamage > 0 && aEntity != null && !isWearingFullHeatHazmat(aEntity)) {
+            return aEntity.attackEntityFrom(source, aDamage);
         }
         return false;
     }
 
     public static boolean applyFrostDamage(EntityLivingBase aEntity, float aDamage) {
         if (aDamage > 0 && aEntity != null && !isWearingFullFrostHazmat(aEntity)) {
-            aEntity.attackEntityFrom(GT_DamageSources.getFrostDamage(), aDamage);
-            return true;
+            return aEntity.attackEntityFrom(GT_DamageSources.getFrostDamage(), aDamage);
         }
         return false;
     }
@@ -2758,8 +2771,7 @@ public class GT_Utility {
     public static boolean applyElectricityDamage(EntityLivingBase aEntity, long aVoltage, long aAmperage) {
         long aDamage = getTier(aVoltage) * aAmperage * 4;
         if (aDamage > 0 && aEntity != null && !isWearingFullElectroHazmat(aEntity)) {
-            aEntity.attackEntityFrom(GT_DamageSources.getElectricDamage(), aDamage);
-            return true;
+            return aEntity.attackEntityFrom(GT_DamageSources.getElectricDamage(), aDamage);
         }
         return false;
     }

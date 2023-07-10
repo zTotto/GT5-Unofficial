@@ -115,6 +115,8 @@ import gregtech.api.util.GT_ApiaryModifier;
 import gregtech.api.util.GT_ApiaryUpgrade;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.GT_Client;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 
 public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicMachine
     implements IBeeHousing, IBeeHousingInventory, IErrorLogic, IBeeModifier, IBeeListener, IAddUIWidgets {
@@ -129,6 +131,7 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
 
     public int mSpeed = 0;
     public boolean mLockedSpeed = true;
+    public boolean mAutoQueen = true;
 
     private ItemStack usedQueen = null;
     private IBee usedQueenBee = null;
@@ -248,6 +251,7 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
         super.saveNBTData(aNBT);
         aNBT.setInteger("mSpeed", mSpeed);
         aNBT.setBoolean("mLockedSpeed", mLockedSpeed);
+        aNBT.setBoolean("mAutoQueen", mAutoQueen);
         if (usedQueen != null) aNBT.setTag("usedQueen", usedQueen.writeToNBT(new NBTTagCompound()));
         aNBT.setBoolean("retrievingPollenInThisOperation", retrievingPollenInThisOperation);
         aNBT.setInteger("pollinationDelay", pollinationDelay);
@@ -259,6 +263,7 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
         super.loadNBTData(aNBT);
         mSpeed = aNBT.getInteger("mSpeed");
         mLockedSpeed = aNBT.getBoolean("mLockedSpeed");
+        if (aNBT.hasKey("mAutoQueen")) mAutoQueen = aNBT.getBoolean("mAutoQueen");
         if (aNBT.hasKey("usedQueen")) usedQueen = ItemStack.loadItemStackFromNBT(aNBT.getCompoundTag("usedQueen"));
         retrievingPollenInThisOperation = aNBT.getBoolean("retrievingPollenInThisOperation");
         pollinationDelay = aNBT.getInteger("pollinationDelay");
@@ -635,9 +640,10 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
                                     if (aBaseMetaTileEntity.addStackToSlot(queen, mOutputItems[i])) break;
                                 } else if (beeRoot.isMember(mOutputItems[i], EnumBeeType.DRONE.ordinal()))
                                     if (aBaseMetaTileEntity.addStackToSlot(drone, mOutputItems[i])) break;
-                            } else
-                                if (i == 0 && j == 0 && beeRoot.isMember(mOutputItems[0], EnumBeeType.QUEEN.ordinal()))
-                                    if (aBaseMetaTileEntity.addStackToSlot(queen, mOutputItems[0])) break;
+                            } else if (mAutoQueen && i == 0
+                                && j == 0
+                                && beeRoot.isMember(mOutputItems[0], EnumBeeType.QUEEN.ordinal())
+                                && aBaseMetaTileEntity.addStackToSlot(queen, mOutputItems[0])) break;
                             if (aBaseMetaTileEntity
                                 .addStackToSlot(getOutputSlot() + ((j + i) % mOutputItems.length), mOutputItems[i]))
                                 break;
@@ -1139,7 +1145,8 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
         SPEED_LOCKED_TOOLTIP = "GT5U.machines.industrialapiary.speedlocked.tooltip",
         INFO_TOOLTIP = "GT5U.machines.industrialapiary.info.tooltip",
         INFO_WITH_BEE_TOOLTIP = "GT5U.machines.industrialapiary.infoextended.tooltip",
-        UPGRADE_TOOLTIP = "GT5U.machines.industrialapiary.upgradeslot.tooltip";
+        UPGRADE_TOOLTIP = "GT5U.machines.industrialapiary.upgradeslot.tooltip",
+        AUTOQUEEN_TOOLTIP = "GT5U.machines.industrialapiary.autoqueen.tooltip";
 
     @Override
     public boolean useModularUI() {
@@ -1182,6 +1189,15 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
                     .setTooltipShowUpDelay(TOOLTIP_DELAY)
                     .setPos(7, 26)
                     .setSize(18, 18))
+            .widget(
+                new CycleButtonWidget().setToggle(() -> mAutoQueen, x -> mAutoQueen = x)
+                    .setTextureGetter(
+                        i -> i == 0 ? GT_UITextures.OVERLAY_BUTTON_CROSS : GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
+                    .setGTTooltip(() -> mTooltipCache.getData(AUTOQUEEN_TOOLTIP))
+                    .setTooltipShowUpDelay(TOOLTIP_DELAY)
+                    .setPos(7, 44)
+                    .setSize(18, 18)
+                    .setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_SLOT_BEE_QUEEN))
             .widget(
                 new DrawableWidget().setDrawable(GT_UITextures.PICTURE_INFORMATION)
                     .setGTTooltip(() -> {
@@ -1429,6 +1445,48 @@ public class GT_MetaTileEntity_IndustrialApiary extends GT_MetaTileEntity_BasicM
                 break;
             }
             return null;
+        }
+    }
+
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
+        super.getWailaBody(itemStack, currenttip, accessor, config);
+        final NBTTagCompound tag = accessor.getNBTData();
+        if (tag.hasKey("queen")) {
+            currenttip.add(
+                "Current Queen: " + EnumChatFormatting.GREEN + StatCollector.translateToLocal(tag.getString("queen")));
+        }
+        if (tag.hasKey("errors")) {
+            NBTTagCompound errorNbt = tag.getCompoundTag("errors");
+            for (int i = 0; i < errorNbt.getInteger("size"); i++) {
+                currenttip.add(
+                    "Error: " + EnumChatFormatting.RED
+                        + StatCollector.translateToLocal("for." + errorNbt.getString("e" + i)));
+            }
+        }
+    }
+
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+        int z) {
+        super.getWailaNBTData(player, tile, tag, world, x, y, z);
+        if (usedQueen != null) {
+            tag.setString(
+                "queen",
+                beeRoot.getMember(usedQueen)
+                    .getGenome()
+                    .getPrimary()
+                    .getUnlocalizedName());
+        }
+        if (hasErrors()) {
+            NBTTagCompound errorNbt = new NBTTagCompound();
+            int errorCounter = 0;
+            for (IErrorState error : mErrorStates) {
+                errorNbt.setString("e" + errorCounter++, error.getDescription());
+            }
+            errorNbt.setInteger("size", errorCounter);
+            tag.setTag("errors", errorNbt);
         }
     }
 }
