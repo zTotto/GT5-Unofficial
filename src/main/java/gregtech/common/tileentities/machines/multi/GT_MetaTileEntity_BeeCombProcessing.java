@@ -2,7 +2,6 @@ package gregtech.common.tileentities.machines.multi;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static forestry.api.apiculture.BeeManager.beeRoot;
 import static gregtech.api.enums.GT_HatchElement.Energy;
 import static gregtech.api.enums.GT_HatchElement.InputBus;
 import static gregtech.api.enums.GT_HatchElement.InputHatch;
@@ -14,19 +13,19 @@ import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_PROCESSING_ARRAY_GLOW;
 import static gregtech.api.util.GT_StructureUtility.*;
 
-import com.gtnewhorizon.structurelib.alignment.IAlignmentLimits;
-import com.gtnewhorizon.structurelib.structure.*;
-import forestry.api.apiculture.IAlleleBeeSpecies;
-import forestry.api.apiculture.IBee;
-import forestry.api.apiculture.IBeeGenome;
-import gregtech.api.enums.GT_Values;
-import gregtech.api.util.GT_Recipe;
-import gregtech.common.items.CombType;
+import java.util.List;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+
+import org.jetbrains.annotations.NotNull;
+
+import com.gtnewhorizon.structurelib.alignment.IAlignmentLimits;
+import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
+import com.gtnewhorizon.structurelib.structure.*;
 
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.Materials;
@@ -34,18 +33,20 @@ import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_CubicMultiBlockBase;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_ExtendedPowerMultiBlockBase;
 import gregtech.api.multitileentity.multiblock.casing.Glasses;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_Utility;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import gregtech.common.items.CombType;
 
 public class GT_MetaTileEntity_BeeCombProcessing
-    extends GT_MetaTileEntity_CubicMultiBlockBase<GT_MetaTileEntity_BeeCombProcessing> {
+    extends GT_MetaTileEntity_ExtendedPowerMultiBlockBase<GT_MetaTileEntity_BeeCombProcessing>
+    implements ISurvivalConstructable {
+
+    protected static final String STRUCTURE_PIECE_MAIN = "main";
 
     private static final int CASING_INDEX1 = GT_Utility.getCasingTextureIndex(GregTech_API.sBlockCasings8, 7);
     private static final int CASING_INDEX2 = GT_Utility.getCasingTextureIndex(GregTech_API.sBlockCasings4, 1);
@@ -62,14 +63,16 @@ public class GT_MetaTileEntity_BeeCombProcessing
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
         return new GT_MetaTileEntity_BeeCombProcessing(this.mName);
     }
+
     @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         return checkPiece(STRUCTURE_PIECE_MAIN, 8, 9, 1) && mMaintenanceHatches.size() <= 1
             && !mMufflerHatches.isEmpty();
     }
+
     @Override
     public IStructureDefinition<GT_MetaTileEntity_BeeCombProcessing> getStructureDefinition() {
-        return (IStructureDefinition<GT_MetaTileEntity_BeeCombProcessing>) STRUCTURE_DEFINITION;
+        return STRUCTURE_DEFINITION;
     }
 
     private static final IStructureDefinition<GT_MetaTileEntity_BeeCombProcessing> STRUCTURE_DEFINITION = StructureDefinition
@@ -155,7 +158,7 @@ public class GT_MetaTileEntity_BeeCombProcessing
 
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
-                                 int colorIndex, boolean aActive, boolean redstoneLevel) {
+        int colorIndex, boolean aActive, boolean redstoneLevel) {
         if (side == aFacing) {
             if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(CASING_INDEX2),
                 TextureFactory.builder()
@@ -181,39 +184,25 @@ public class GT_MetaTileEntity_BeeCombProcessing
     }
 
     @Override
-    protected IStructureElement<GT_MetaTileEntity_CubicMultiBlockBase<?>> getCasingElement() {
-        return StructureUtility.ofBlock(GregTech_API.sBlockCasings2, 1);
-    }
-
-    @Override
-    protected int getHatchTextureIndex() {
-        return 0;
-    }
-
-    @Override
-    protected int getRequiredCasingCount() {
-        return 0;
-    }
-
-    @Override
     public boolean isCorrectMachinePart(ItemStack aStack) {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean checkRecipe(ItemStack aStack) {
+    @NotNull
+    public CheckRecipeResult checkProcessing() {
         List<ItemStack> tInput = getStoredInputs();
         List<FluidStack> tInputFluid = getStoredFluids();
         for (ItemStack comb : tInput) {
-            if(getCombFromItemStack(comb) instanceof CombType) {
-                MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText("ALELUJA"));
+            if (getCombFromItemStack(comb) instanceof CombType) {
+                MinecraftServer.getServer()
+                    .getConfigurationManager()
+                    .sendChatMsg(new ChatComponentText("ALELUJA"));
             }
         }
 
-
-        return false;
+        return CheckRecipeResultRegistry.NO_RECIPE;
     }
-
 
     public CombType getCombFromItemStack(ItemStack stack) {
         return CombType.valueOf(stack.getItemDamage());
@@ -221,7 +210,7 @@ public class GT_MetaTileEntity_BeeCombProcessing
 
     @Override
     public int getMaxEfficiency(ItemStack aStack) {
-        return 0;
+        return 10000;
     }
 
     @Override
@@ -233,6 +222,7 @@ public class GT_MetaTileEntity_BeeCombProcessing
     public boolean explodesOnComponentBreak(ItemStack aStack) {
         return false;
     }
+
     @Override
     protected IAlignmentLimits getInitialAlignmentLimits() {
         return (d, r, f) -> !r.isUpsideDown() && !f.isVerticallyFliped();
