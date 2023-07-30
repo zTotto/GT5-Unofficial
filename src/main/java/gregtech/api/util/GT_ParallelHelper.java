@@ -381,6 +381,18 @@ public class GT_ParallelHelper {
     }
 
     /**
+     * Try to consume the inputs of the recipe
+     *
+     * @param recipe Processed recipe
+     * @param fluids Fluid inputs
+     * @param items  Item inputs
+     * @return Number of parallels possible
+     */
+    protected int getMaximumParallelsFromInputs(GT_Recipe recipe, FluidStack[] fluids, ItemStack[] items) {
+        return recipe.getMaximumParallels(fluids, items);
+    }
+
+    /**
      * Called by build(). Determines the parallels and everything else that needs to be done at build time
      */
     protected void determineParallel() {
@@ -452,27 +464,36 @@ public class GT_ParallelHelper {
 
         final int tRecipeEUt = (int) Math.ceil(recipe.mEUt * eutModifier);
         // Consume inputs to determine normal parallel
+
+        // Used if machine is locked to a single recipe
         if (recipeCheck != null) {
             int actualMaxParallel = (int) Math.min(maxParallelBeforeBatchMode, availableEUt / tRecipeEUt);
             currentParallel = recipeCheck.checkRecipeInputs(true, actualMaxParallel, itemInputs, fluidInputs);
+
+            // If no recipe is locked:
         } else {
             long tCurrentUsage = 0;
             boolean builtRecipeCheck = false;
-            for (; currentParallel < maxParallelBeforeBatchMode
-                && tCurrentUsage < (availableEUt - tRecipeEUt); currentParallel++) {
-                if (!tryConsumeRecipeInputs(recipe, fluidInputs, itemInputs)) {
-                    break;
-                }
-                tCurrentUsage += tRecipeEUt;
-                if (tSingleRecipeCheckBuilder != null && !builtRecipeCheck) {
-                    // If recipe checker is not built yet, build and set it
-                    SingleRecipeCheck builtCheck = tSingleRecipeCheckBuilder.setAfter(itemInputs, fluidInputs)
-                        .setRecipe(recipe)
-                        .build();
-                    singleRecipeMachine.setSingleRecipeCheck(builtCheck);
-                    builtRecipeCheck = true;
-                }
+
+            int parallelLimitByEU = (int) Math.floor(availableEUt / tRecipeEUt);
+            int parallelLimitByInputs = getMaximumParallelsFromInputs(recipe, fluidInputs, itemInputs);
+
+            int actualParallel = Math
+                .min(Math.min(maxParallelBeforeBatchMode, parallelLimitByEU), parallelLimitByInputs);
+
+            if (recipe.isRecipeInputEqual(true, false, actualParallel, fluidInputs, itemInputs)) {
+                tCurrentUsage += (tRecipeEUt * actualParallel);
+                currentParallel = actualParallel;
             }
+            if (tSingleRecipeCheckBuilder != null && !builtRecipeCheck) {
+                // If recipe checker is not built yet, build and set it
+                SingleRecipeCheck builtCheck = tSingleRecipeCheckBuilder.setAfter(itemInputs, fluidInputs)
+                    .setRecipe(recipe)
+                    .build();
+                singleRecipeMachine.setSingleRecipeCheck(builtCheck);
+                builtRecipeCheck = true;
+            }
+
         }
 
         if (currentParallel <= 0) {
