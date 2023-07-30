@@ -111,6 +111,8 @@ import gregtech.api.objects.ItemData;
 import gregtech.api.objects.MaterialStack;
 import gregtech.api.recipe.check.FindRecipeResult;
 import gregtech.api.util.GT_Recipe.GT_Recipe_Map;
+import gregtech.api.util.GT_RecipeMapUtil.GT_RecipeTemplate;
+import gregtech.api.util.GT_Utility.ItemId;
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.gui.modularui.UIHelper;
 import gregtech.common.items.GT_FluidDisplayItem;
@@ -782,6 +784,62 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
 
         int minParallel = Integer.MAX_VALUE;
 
+        if (aInputs != null) {
+            // Create map for item -> stored amount
+            Map<ItemId, Integer> itemMap = new HashMap<>();
+            for (ItemStack itemStack : aInputs) {
+                if (itemStack == null) continue;
+                itemMap.merge(ItemId.createNoCopy(itemStack), itemStack.stackSize, Integer::sum);
+            }
+
+            // Create map for recipe input -> needed amount
+            Map<ItemId, Integer> recipeItemMap = new HashMap<>();
+            for (ItemStack itemStack : mInputs) {
+                if (itemStack == null) continue;
+                recipeItemMap.merge(ItemId.createNoCopy(itemStack), itemStack.stackSize, Integer::sum);
+            }
+
+            // Check how many parallels can it perform for each item
+            for (Map.Entry<ItemId, Integer> costEntry : recipeItemMap.entrySet()) {
+                //We don't care about non-consumed items for calculating parallels
+                if (costEntry.getValue() > 0) {
+                    minParallel = Math
+                        .min(minParallel, itemMap.getOrDefault(costEntry.getKey(), 0) / costEntry.getValue());
+                    if (minParallel <= 0) {
+                        return 0;
+                    }
+                }
+            }
+        }
+
+        if (aFluidInputs != null) {
+            // Create map for fluid -> stored amount
+            Map<Fluid, Integer> fluidMap = new HashMap<>();
+            for (FluidStack fluidStack : aFluidInputs) {
+                if (fluidStack == null) continue;
+                fluidMap.merge(fluidStack.getFluid(), fluidStack.amount, Integer::sum);
+            }
+
+            // Create map for recipe fluid input -> needed amount
+            Map<Fluid, Integer> recipeFluidMap = new HashMap<>();
+            for (FluidStack fluidStack : mFluidInputs) {
+                if (fluidStack == null) continue;
+                recipeFluidMap.merge(fluidStack.getFluid(), fluidStack.amount, Integer::sum);
+            }
+
+            // Check how many parallels can it perform for each fluid
+            for (Map.Entry<Fluid, Integer> costEntry : recipeFluidMap.entrySet()) {
+                if (costEntry.getValue() > 0) {
+                    minParallel = Math
+                        .min(minParallel, fluidMap.getOrDefault(costEntry.getKey(), 0) / costEntry.getValue());
+                    if (minParallel <= 0) {
+                        return 0;
+                    }
+                }
+            }
+        }
+        
+        /*
         int fluidCost;
         if (aFluidInputs != null) {
             for (FluidStack recipeFluidCost : mFluidInputs) {
@@ -836,7 +894,7 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 }
             }
         }
-
+        */
         return minParallel;
     }
 
