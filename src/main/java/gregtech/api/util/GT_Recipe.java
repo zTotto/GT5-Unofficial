@@ -817,12 +817,14 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                             if (GT_OreDictUnificator.isInputStackEqual(providedItem, unifiedItemCost)) {
                                 if (GTppRecipeHelper) { // Please see JavaDoc on GTppRecipeHelper for why this is here.
                                     if (GT_Utility.areStacksEqual(providedItem, Ic2Items.FluidCell.copy(), true)
-                                        || GT_Utility.areStacksEqual(providedItem, ItemList.Tool_DataStick.get(1L), true)
-                                        || GT_Utility.areStacksEqual(providedItem, ItemList.Tool_DataOrb.get(1L), true)) {
+                                        || GT_Utility
+                                            .areStacksEqual(providedItem, ItemList.Tool_DataStick.get(1L), true)
+                                        || GT_Utility
+                                            .areStacksEqual(providedItem, ItemList.Tool_DataOrb.get(1L), true)) {
                                         if (!GT_Utility.areStacksEqual(providedItem, recipeItemCost, false)) continue;
                                     }
                                 }
-                                
+
                                 int parallel = (int) Math.floor(providedItem.stackSize / itemCost);
                                 if (parallel < minParallel) {
                                     minParallel = parallel;
