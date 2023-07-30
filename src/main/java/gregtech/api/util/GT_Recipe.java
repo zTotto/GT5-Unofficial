@@ -801,7 +801,7 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
 
             // Check how many parallels can it perform for each item
             for (Map.Entry<ItemId, Integer> costEntry : recipeItemMap.entrySet()) {
-                //We don't care about non-consumed items for calculating parallels
+                // We don't care about non-consumed items for calculating parallels
                 if (costEntry.getValue() > 0) {
                     minParallel = Math
                         .min(minParallel, itemMap.getOrDefault(costEntry.getKey(), 0) / costEntry.getValue());
@@ -838,63 +838,7 @@ public class GT_Recipe implements Comparable<GT_Recipe> {
                 }
             }
         }
-        
-        /*
-        int fluidCost;
-        if (aFluidInputs != null) {
-            for (FluidStack recipeFluidCost : mFluidInputs) {
-                if (recipeFluidCost != null) {
-                    fluidCost = recipeFluidCost.amount;
-                    // Check for non-consumed fluids so we don't divide by zero
-                    if (fluidCost > 0) {
-                        for (int i = 0; i < aFluidInputs.length; i++) {
-                            FluidStack providedFluid = aFluidInputs[i];
-                            if (providedFluid != null && providedFluid.isFluidEqual(recipeFluidCost)) {
-                                int parallel = (int) Math.floor(providedFluid.amount / fluidCost);
-                                if (parallel < minParallel) {
-                                    minParallel = parallel;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
-        int itemCost;
-        if (aInputs != null) {
-            for (ItemStack recipeItemCost : mInputs) {
-                ItemStack unifiedItemCost = GT_OreDictUnificator.get_nocopy(true, recipeItemCost);
-                if (unifiedItemCost != null) {
-                    itemCost = recipeItemCost.stackSize;
-                    // Check for non-consumed items so we don't divide by zero
-                    if (itemCost > 0) {
-                        for (int i = 0; i < aInputs.length; i++) {
-                            ItemStack providedItem = aInputs[i];
-                            if (GT_OreDictUnificator.isInputStackEqual(providedItem, unifiedItemCost)) {
-                                if (GTppRecipeHelper) { // Please see JavaDoc on GTppRecipeHelper for why this is here.
-                                    if (GT_Utility.areStacksEqual(providedItem, Ic2Items.FluidCell.copy(), true)
-                                        || GT_Utility
-                                            .areStacksEqual(providedItem, ItemList.Tool_DataStick.get(1L), true)
-                                        || GT_Utility
-                                            .areStacksEqual(providedItem, ItemList.Tool_DataOrb.get(1L), true)) {
-                                        if (!GT_Utility.areStacksEqual(providedItem, recipeItemCost, false)) continue;
-                                    }
-                                }
-
-                                int parallel = (int) Math.floor(providedItem.stackSize / itemCost);
-                                if (parallel < minParallel) {
-                                    minParallel = parallel;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        */
         return minParallel;
     }
 
