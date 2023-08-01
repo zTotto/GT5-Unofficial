@@ -298,6 +298,7 @@ public abstract class GT_MetaTileEntity_MultiBlockBase extends MetaTileEntity
             // backward compatibility
             voidingMode = aNBT.getBoolean(VOID_EXCESS_NBT_KEY) ? VoidingMode.VOID_ALL : VoidingMode.VOID_NONE;
         }
+        if (!getAllowedVoidingModes().contains(voidingMode)) voidingMode = getDefaultVoidingMode();
 
         int aOutputItemsLength = aNBT.getInteger("mOutputItemsLength");
         if (aOutputItemsLength > 0) {
@@ -500,6 +501,7 @@ public abstract class GT_MetaTileEntity_MultiBlockBase extends MetaTileEntity
         long timeElapsed = aTick - mLastWorkingTick;
 
         if (timeElapsed >= 100) return aTick % 100 == 0;
+        // Batch mode should be a lot less aggressive at recipe checking
         if (!isBatchModeEnabled()) {
             return timeElapsed == 5 || timeElapsed == 12
                 || timeElapsed == 20
@@ -508,9 +510,6 @@ public abstract class GT_MetaTileEntity_MultiBlockBase extends MetaTileEntity
                 || timeElapsed == 55
                 || timeElapsed == 70
                 || timeElapsed == 85;
-        } else {
-            // Batch mode should be a lot less aggressive at recipe checking (Implement a GUI-configurable time here)
-            if (timeElapsed >= 100) return aTick % 100 == 0;
         }
         return false;
     }
