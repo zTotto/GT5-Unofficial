@@ -76,7 +76,6 @@ import static gregtech.api.enums.MetaTileEntityIDs.CHEST_BUFFER_UHV;
 import static gregtech.api.enums.MetaTileEntityIDs.CHEST_BUFFER_ULV;
 import static gregtech.api.enums.MetaTileEntityIDs.CHEST_BUFFER_UV;
 import static gregtech.api.enums.MetaTileEntityIDs.CHEST_BUFFER_ZPM;
-import static gregtech.api.enums.MetaTileEntityIDs.CIRCUIT_ASSEMBLER_MULTI;
 import static gregtech.api.enums.MetaTileEntityIDs.CLEANROOM_CONTROLLER;
 import static gregtech.api.enums.MetaTileEntityIDs.COMBUSTION_ENGINE_CONTROLLER;
 import static gregtech.api.enums.MetaTileEntityIDs.COMBUSTION_GENERATOR_HV;
@@ -539,7 +538,6 @@ import gregtech.common.tileentities.machines.long_distance.GT_MetaTileEntity_Lon
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_AssemblyLine;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_BrickedBlastFurnace;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_Charcoal_Pit;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_CircuitAssemblyMulti;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_Cleanroom;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_ConcreteBackfiller1;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_ConcreteBackfiller2;
@@ -844,11 +842,6 @@ public class GT_Loader_MetaTileEntities implements Runnable { // TODO CHECK CIRC
                 DTPF_CONTROLLER.ID,
                 "multimachine.plasmaforge",
                 "Dimensionally Transcendent Plasma Forge").getStackForm(1L));
-        ItemList.CircuitAssemblyMulti.set(
-            new GT_MetaTileEntity_CircuitAssemblyMulti(
-                CIRCUIT_ASSEMBLER_MULTI.ID,
-                "multimachine.circuitassemblymulti",
-                "Circuit Assembly Multi").getStackForm(1));
 
         ItemList.Machine_Multi_LargeBoiler_Bronze.set(
             new GT_MetaTileEntity_LargeBoiler_Bronze(
