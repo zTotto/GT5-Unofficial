@@ -1191,4 +1191,24 @@ public final class RecipeMaps {
                     .map(Collections::singletonList)
                     .orElse(Collections.emptyList())));
     }
+
+    public static final RecipeMap<RecipeMapBackend> sCircuitAssemblerMulti = RecipeMapBuilder
+        .of("gt.recipe.circuitassemblermulti")
+        .maxIO(16, 1, 4, 0)
+        .slotOverlays((index, isFluid, isOutput, isSpecial) -> {
+            if (!isOutput) {
+                return null;
+            }
+            if (isFluid) {
+                return GT_UITextures.OVERLAY_SLOTS_NUMBER[index + 1];
+            } else {
+                return GT_UITextures.OVERLAY_SLOTS_NUMBER[0];
+            }
+        })
+        .progressBar(GT_UITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .logoPos(80, 62)
+        .frontend(DistillationTowerFrontend::new)
+        .disableOptimize()
+        .recipeConfigFile("distillation", FIRST_FLUIDSTACK_INPUT)
+        .build();
 }
