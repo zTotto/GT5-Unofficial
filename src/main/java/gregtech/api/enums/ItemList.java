@@ -1779,6 +1779,7 @@ public enum ItemList implements IItemContainer {
     Machine_Multi_Assemblyline,
     Machine_Multi_DieselEngine,
     Machine_Multi_ExtremeDieselEngine,
+    CircuitAssemblyMulti,
     QuantumEye,
     QuantumStar,
     Gravistar,
