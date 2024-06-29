@@ -334,10 +334,10 @@ public class GT_TileEntity_Ores extends TileEntity implements IAllSidedTexturedT
                         // if not shouldFortune or not isNatural then get normal drops
                         // if not shouldFortune and isNatural then get normal drops
                         // if shouldFortune and not isNatural then get normal drops
-                        if (shouldFortune && this.mNatural && aFortune > 0) {
+                        if (aFortune > 0) { // shouldFortune && this.mNatural && aFortune > 0)
                             int aMinAmount = 1;
                             // Max applicable fortune
-                            if (aFortune > 3) aFortune = 3;
+                            // if (aFortune > 3) aFortune = 3;
                             int amount = aMinAmount
                                 + Math.max(worldObj.rand.nextInt(aFortune * (tIsRich ? 2 : 1) + 2) - 1, 0);
                             for (int i = 0; i < amount; i++) {
