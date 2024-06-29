@@ -31,7 +31,7 @@ public abstract class AbstractProcessingLogic<P extends AbstractProcessingLogic<
     protected int duration;
     protected long availableVoltage;
     protected long availableAmperage;
-    protected double overClockTimeReduction = 2.0;
+    protected double overClockTimeReduction = 4.0;
     protected double overClockPowerIncrease = 4.0;
     protected boolean protectItems;
     protected boolean protectFluids;
@@ -176,7 +176,7 @@ public abstract class AbstractProcessingLogic<P extends AbstractProcessingLogic<
      * Sets whether the multi should use amperage to OC or not
      */
     public P setAmperageOC(boolean amperageOC) {
-        this.amperageOC = amperageOC;
+        this.amperageOC = true; // amperageOC;
         return getThis();
     }
 
