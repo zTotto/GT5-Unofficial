@@ -176,7 +176,7 @@ public abstract class AbstractProcessingLogic<P extends AbstractProcessingLogic<
      * Sets whether the multi should use amperage to OC or not
      */
     public P setAmperageOC(boolean amperageOC) {
-        this.amperageOC = true; // amperageOC;
+        this.amperageOC = amperageOC;
         return getThis();
     }
 
