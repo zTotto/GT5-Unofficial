@@ -35,6 +35,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.github.technus.tectech.thing.CustomItemList;
+
 import gregtech.GT_Mod;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GT_Values;
@@ -3532,6 +3534,151 @@ public class AssemblerRecipes implements Runnable {
             }
 
         }
+        // Easier Wireless
+
+        ItemStack[] sensors = { ItemList.ULV_Coil.get(1), ItemList.Sensor_LV.get(1), ItemList.Sensor_MV.get(1),
+            ItemList.Sensor_HV.get(1), ItemList.Sensor_EV.get(1), ItemList.Sensor_IV.get(1), ItemList.Sensor_LuV.get(1),
+            ItemList.Sensor_ZPM.get(1), ItemList.Sensor_UV.get(1), ItemList.Sensor_UHV.get(1),
+            ItemList.Sensor_UEV.get(1L), ItemList.Sensor_UIV.get(1L), ItemList.Sensor_UMV.get(1L),
+            ItemList.Sensor_UXV.get(1L) };
+
+        ItemStack[] energyHatches = { ItemList.Hatch_Energy_ULV.get(1), ItemList.Hatch_Energy_LV.get(1),
+            ItemList.Hatch_Energy_MV.get(1), ItemList.Hatch_Energy_HV.get(1), ItemList.Hatch_Energy_EV.get(1),
+            ItemList.Hatch_Energy_IV.get(1), ItemList.Hatch_Energy_LuV.get(1), ItemList.Hatch_Energy_ZPM.get(1),
+            ItemList.Hatch_Energy_UV.get(1), ItemList.Hatch_Energy_UHV.get(1), ItemList.Hatch_Energy_UEV.get(1L),
+            ItemList.Hatch_Energy_UIV.get(1L), ItemList.Hatch_Energy_UMV.get(1L), ItemList.Hatch_Energy_UXV.get(1L) };
+
+        ItemStack[] dynamoHatches = { ItemList.Hatch_Dynamo_ULV.get(1), ItemList.Hatch_Dynamo_LV.get(1),
+            ItemList.Hatch_Dynamo_MV.get(1), ItemList.Hatch_Dynamo_HV.get(1), ItemList.Hatch_Dynamo_EV.get(1),
+            ItemList.Hatch_Dynamo_IV.get(1), ItemList.Hatch_Dynamo_LuV.get(1), ItemList.Hatch_Dynamo_ZPM.get(1),
+            ItemList.Hatch_Dynamo_UV.get(1), ItemList.Hatch_Dynamo_UHV.get(1), ItemList.Hatch_Dynamo_UEV.get(1L),
+            ItemList.Hatch_Dynamo_UIV.get(1L), ItemList.Hatch_Dynamo_UMV.get(1L), ItemList.Hatch_Dynamo_UXV.get(1L) };
+
+        ItemStack[] energyHatches_4A = { CustomItemList.eM_energyMulti4_EV.get(1),
+            CustomItemList.eM_energyMulti4_IV.get(1), CustomItemList.eM_energyMulti4_LuV.get(1),
+            CustomItemList.eM_energyMulti4_ZPM.get(1), CustomItemList.eM_energyMulti4_UV.get(1),
+            CustomItemList.eM_energyMulti4_UHV.get(1), CustomItemList.eM_energyMulti4_UEV.get(1),
+            CustomItemList.eM_energyMulti4_UIV.get(1), CustomItemList.eM_energyMulti4_UMV.get(1),
+            CustomItemList.eM_energyMulti4_UXV.get(1) };
+
+        ItemStack[] energyHatches_16A = { CustomItemList.eM_energyMulti16_EV.get(1),
+            CustomItemList.eM_energyMulti16_IV.get(1), CustomItemList.eM_energyMulti16_LuV.get(1),
+            CustomItemList.eM_energyMulti16_ZPM.get(1), CustomItemList.eM_energyMulti16_UV.get(1),
+            CustomItemList.eM_energyMulti16_UHV.get(1), CustomItemList.eM_energyMulti16_UEV.get(1),
+            CustomItemList.eM_energyMulti16_UIV.get(1), CustomItemList.eM_energyMulti16_UMV.get(1),
+            CustomItemList.eM_energyMulti16_UXV.get(1) };
+
+        ItemStack[] energyHatches_64A = { CustomItemList.eM_energyMulti64_EV.get(1),
+            CustomItemList.eM_energyMulti64_IV.get(1), CustomItemList.eM_energyMulti64_LuV.get(1),
+            CustomItemList.eM_energyMulti64_ZPM.get(1), CustomItemList.eM_energyMulti64_UV.get(1),
+            CustomItemList.eM_energyMulti64_UHV.get(1), CustomItemList.eM_energyMulti64_UEV.get(1),
+            CustomItemList.eM_energyMulti64_UIV.get(1), CustomItemList.eM_energyMulti64_UMV.get(1),
+            CustomItemList.eM_energyMulti64_UXV.get(1) };
+
+        ItemStack[] wirelessHatches = { ItemList.Wireless_Hatch_Energy_ULV.get(1),
+            ItemList.Wireless_Hatch_Energy_LV.get(1), ItemList.Wireless_Hatch_Energy_MV.get(1),
+            ItemList.Wireless_Hatch_Energy_HV.get(1), ItemList.Wireless_Hatch_Energy_EV.get(1),
+            ItemList.Wireless_Hatch_Energy_IV.get(1), ItemList.Wireless_Hatch_Energy_LuV.get(1),
+            ItemList.Wireless_Hatch_Energy_ZPM.get(1), ItemList.Wireless_Hatch_Energy_UV.get(1),
+            ItemList.Wireless_Hatch_Energy_UHV.get(1), ItemList.Wireless_Hatch_Energy_UEV.get(1),
+            ItemList.Wireless_Hatch_Energy_UIV.get(1), ItemList.Wireless_Hatch_Energy_UMV.get(1),
+            ItemList.Wireless_Hatch_Energy_UXV.get(1) };
+
+        ItemStack[] wirelessHatches_4A = { CustomItemList.eM_energyWirelessMulti4_EV.get(1),
+            CustomItemList.eM_energyWirelessMulti4_IV.get(1), CustomItemList.eM_energyWirelessMulti4_LuV.get(1),
+            CustomItemList.eM_energyWirelessMulti4_ZPM.get(1), CustomItemList.eM_energyWirelessMulti4_UV.get(1),
+            CustomItemList.eM_energyWirelessMulti4_UHV.get(1), CustomItemList.eM_energyWirelessMulti4_UEV.get(1),
+            CustomItemList.eM_energyWirelessMulti4_UIV.get(1), CustomItemList.eM_energyWirelessMulti4_UMV.get(1),
+            CustomItemList.eM_energyWirelessMulti4_UXV.get(1) };
+
+        ItemStack[] wirelessHatches_16A = { CustomItemList.eM_energyWirelessMulti16_EV.get(1),
+            CustomItemList.eM_energyWirelessMulti16_IV.get(1), CustomItemList.eM_energyWirelessMulti16_LuV.get(1),
+            CustomItemList.eM_energyWirelessMulti16_ZPM.get(1), CustomItemList.eM_energyWirelessMulti16_UV.get(1),
+            CustomItemList.eM_energyWirelessMulti16_UHV.get(1), CustomItemList.eM_energyWirelessMulti16_UEV.get(1),
+            CustomItemList.eM_energyWirelessMulti16_UIV.get(1), CustomItemList.eM_energyWirelessMulti16_UMV.get(1),
+            CustomItemList.eM_energyWirelessMulti16_UXV.get(1) };
+
+        ItemStack[] wirelessHatches_64A = { CustomItemList.eM_energyWirelessMulti64_EV.get(1),
+            CustomItemList.eM_energyWirelessMulti64_IV.get(1), CustomItemList.eM_energyWirelessMulti64_LuV.get(1),
+            CustomItemList.eM_energyWirelessMulti64_ZPM.get(1), CustomItemList.eM_energyWirelessMulti64_UV.get(1),
+            CustomItemList.eM_energyWirelessMulti64_UHV.get(1), CustomItemList.eM_energyWirelessMulti64_UEV.get(1),
+            CustomItemList.eM_energyWirelessMulti64_UIV.get(1), CustomItemList.eM_energyWirelessMulti64_UMV.get(1),
+            CustomItemList.eM_energyWirelessMulti64_UXV.get(1) };
+
+        ItemStack[] wirelessDynamos = { ItemList.Wireless_Dynamo_Energy_ULV.get(1),
+            ItemList.Wireless_Dynamo_Energy_LV.get(1), ItemList.Wireless_Dynamo_Energy_MV.get(1),
+            ItemList.Wireless_Dynamo_Energy_HV.get(1), ItemList.Wireless_Dynamo_Energy_EV.get(1),
+            ItemList.Wireless_Dynamo_Energy_IV.get(1), ItemList.Wireless_Dynamo_Energy_LuV.get(1),
+            ItemList.Wireless_Dynamo_Energy_ZPM.get(1), ItemList.Wireless_Dynamo_Energy_UV.get(1),
+            ItemList.Wireless_Dynamo_Energy_UHV.get(1), ItemList.Wireless_Dynamo_Energy_UEV.get(1),
+            ItemList.Wireless_Dynamo_Energy_UIV.get(1), ItemList.Wireless_Dynamo_Energy_UMV.get(1),
+            ItemList.Wireless_Dynamo_Energy_UXV.get(1) };
+
+        // ------------------------ Wireless EU hatches ------------------------
+
+        for (int i = 0; i < wirelessHatches.length; i++) {
+            GT_Values.RA.stdBuilder()
+                .itemInputs(energyHatches[i], sensors[i])
+                .itemOutputs(wirelessHatches[i])
+                .fluidInputs(Materials.Lubricant.getFluid(250))
+                .eut(TierEU.RECIPE_IV)
+                .duration(30 * SECONDS)
+                .addTo(assemblerRecipes);
+
+        }
+
+        // ------------------------ 4A Wireless EU hatches ------------------------
+
+        for (int i = 0; i < wirelessHatches_4A.length; i++) {
+            GT_Values.RA.stdBuilder()
+                .itemInputs(energyHatches_4A[i], sensors[i + 4])
+                .itemOutputs(wirelessHatches_4A[i])
+                .fluidInputs(Materials.Lubricant.getFluid(250))
+                .eut(TierEU.RECIPE_IV)
+                .duration(30 * SECONDS)
+                .addTo(assemblerRecipes);
+
+        }
+
+        // ------------------------ 16A Wireless EU hatches ------------------------
+
+        for (int i = 0; i < wirelessHatches_16A.length; i++) {
+            GT_Values.RA.stdBuilder()
+                .itemInputs(energyHatches_16A[i], sensors[i + 4])
+                .itemOutputs(wirelessHatches_16A[i])
+                .fluidInputs(Materials.Lubricant.getFluid(250))
+                .eut(TierEU.RECIPE_IV)
+                .duration(30 * SECONDS)
+                .addTo(assemblerRecipes);
+
+        }
+
+        // ------------------------ 64A Wireless EU hatches ------------------------
+
+        for (int i = 0; i < wirelessHatches_64A.length; i++) {
+            GT_Values.RA.stdBuilder()
+                .itemInputs(energyHatches_64A[i], sensors[i + 4])
+                .itemOutputs(wirelessHatches_64A[i])
+                .fluidInputs(Materials.Lubricant.getFluid(250))
+                .eut(TierEU.RECIPE_IV)
+                .duration(30 * SECONDS)
+                .addTo(assemblerRecipes);
+
+        }
+
+        // ------------------------ Wireless EU Dynamos ------------------------
+
+        for (int i = 0; i < wirelessDynamos.length; i++) {
+            GT_Values.RA.stdBuilder()
+                .itemInputs(dynamoHatches[i], sensors[i])
+                .itemOutputs(wirelessDynamos[i])
+                .fluidInputs(Materials.Lubricant.getFluid(250))
+                .eut(TierEU.RECIPE_IV)
+                .duration(30 * SECONDS)
+                .addTo(assemblerRecipes);
+
+        }
+
     }
 
     /**
