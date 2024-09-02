@@ -3534,6 +3534,49 @@ public class AssemblerRecipes implements Runnable {
             }
 
         }
+
+        // Easier ME Hatches
+
+        // Maintenance Hatch
+        GT_Values.RA.stdBuilder()
+            .itemInputs(ItemList.Hatch_Maintenance.get(1), ItemList.Robot_Arm_IV.get(1))
+            .itemOutputs(CustomItemList.hatch_CreativeMaintenance.get(1))
+            .duration(10 * SECONDS)
+            .eut(TierEU.RECIPE_IV)
+            .addTo(assemblerRecipes);
+
+        // Crafting Buffer
+        GT_Values.RA.stdBuilder()
+            .itemInputs(ItemList.Hatch_CraftingInput_Bus_ME_ItemOnly.get(1), ItemList.Super_Tank_IV.get(1))
+            .itemOutputs(ItemList.Hatch_CraftingInput_Bus_ME.get(1))
+            .duration(10 * SECONDS)
+            .eut(TierEU.RECIPE_LuV)
+            .addTo(assemblerRecipes);
+
+        // Crafting Slave
+        GT_Values.RA.stdBuilder()
+            .itemInputs(ItemList.Hatch_CraftingInput_Bus_ME_ItemOnly.get(1), ItemList.Sensor_IV.get(1))
+            .itemOutputs(ItemList.Hatch_CraftingInput_Bus_Slave.get(1))
+            .duration(10 * SECONDS)
+            .eut(TierEU.RECIPE_LuV)
+            .addTo(assemblerRecipes);
+
+        // Stocking Hatch
+        GT_Values.RA.stdBuilder()
+            .itemInputs(ItemList.Hatch_Input_Bus_ME.get(1), ItemList.Super_Tank_IV.get(1))
+            .itemOutputs(ItemList.Hatch_Input_ME.get(1))
+            .duration(10 * SECONDS)
+            .eut(TierEU.RECIPE_LuV)
+            .addTo(assemblerRecipes);
+
+        // Advanced Stocking Hatch
+        GT_Values.RA.stdBuilder()
+            .itemInputs(ItemList.Hatch_Input_Bus_ME_Advanced.get(1), ItemList.Super_Tank_IV.get(1))
+            .itemOutputs(ItemList.Hatch_Input_ME_Advanced.get(1))
+            .duration(10 * SECONDS)
+            .eut(TierEU.RECIPE_LuV)
+            .addTo(assemblerRecipes);
+
         // Easier Wireless
 
         ItemStack[] sensors = { ItemList.ULV_Coil.get(1), ItemList.Sensor_LV.get(1), ItemList.Sensor_MV.get(1),
