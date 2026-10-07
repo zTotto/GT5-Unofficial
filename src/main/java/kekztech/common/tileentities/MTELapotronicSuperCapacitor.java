@@ -404,10 +404,6 @@ public class MTELapotronicSuperCapacitor extends MTEEnhancedMultiBlockBase<MTELa
         return capacitors[9];
     }
 
-    private int wirelessCapableCapacitors() {
-        return capacitors[4] + capacitors[7] + capacitors[8] + capacitors[9];
-    }
-
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         final ImmutableMap<String, Object> tooltipVars = ImmutableMap.<String, Object>builder()
@@ -702,7 +698,7 @@ public class MTELapotronicSuperCapacitor extends MTEEnhancedMultiBlockBase<MTELa
             }
         }
 
-        if (wirelessCapableCapacitors() <= 0) {
+        if (!canUseWireless()) {
             wireless_mode = false;
         }
 
@@ -747,17 +743,8 @@ public class MTELapotronicSuperCapacitor extends MTEEnhancedMultiBlockBase<MTELa
         balanced = true;
 
         // Find difference.
-        BigInteger transferred_eu = stored.subtract(
-            (ItemBlockLapotronicEnergyUnit.LSC_WIRELESS_EU_CAP.multiply(BigInteger.valueOf(getUHVCapacitorCount())))
-                .add(
-                    ItemBlockLapotronicEnergyUnit.UEV_WIRELESS_EU_CAP
-                        .multiply(BigInteger.valueOf(getUEVCapacitorCount())))
-                .add(
-                    ItemBlockLapotronicEnergyUnit.UIV_WIRELESS_EU_CAP
-                        .multiply(BigInteger.valueOf(getUIVCapacitorCount())))
-                .add(
-                    ItemBlockLapotronicEnergyUnit.UMV_WIRELESS_EU_CAP
-                        .multiply(BigInteger.valueOf(getUMVCapacitorCount()))));
+        final BigInteger wirelessTarget = getWirelessTarget();
+        BigInteger transferred_eu = stored.subtract(wirelessTarget);
 
         // If that difference can be added then do so.
         if (WirelessNetworkManager.addEUToGlobalEnergyMap(global_energy_user_uuid, transferred_eu)) {
@@ -774,20 +761,22 @@ public class MTELapotronicSuperCapacitor extends MTEEnhancedMultiBlockBase<MTELa
                     .longValue();
             }
             // If it succeeds there was sufficient energy so set the internal capacity as such.
-            stored = ItemBlockLapotronicEnergyUnit.LSC_WIRELESS_EU_CAP
-                .multiply(BigInteger.valueOf(getUHVCapacitorCount()))
-                .add(
-                    ItemBlockLapotronicEnergyUnit.UEV_WIRELESS_EU_CAP
-                        .multiply(BigInteger.valueOf(getUEVCapacitorCount()))
-                        .add(
-                            ItemBlockLapotronicEnergyUnit.UIV_WIRELESS_EU_CAP
-                                .multiply(BigInteger.valueOf(getUIVCapacitorCount())))
-                        .add(
-                            ItemBlockLapotronicEnergyUnit.UMV_WIRELESS_EU_CAP
-                                .multiply(BigInteger.valueOf(getUMVCapacitorCount()))));
+            stored = wirelessTarget;
         }
 
         return 1;
+    }
+
+    /**
+     * EU kept inside the LSC when wireless mode rebalances: a fixed amount per UHV+ capacitor plus (custom) half of the
+     * capacity of the capacitors below UHV.
+     */
+    private BigInteger getWirelessTarget() {
+        return ItemBlockLapotronicEnergyUnit.LSC_WIRELESS_EU_CAP.multiply(BigInteger.valueOf(getUHVCapacitorCount()))
+            .add(ItemBlockLapotronicEnergyUnit.UEV_WIRELESS_EU_CAP.multiply(BigInteger.valueOf(getUEVCapacitorCount())))
+            .add(ItemBlockLapotronicEnergyUnit.UIV_WIRELESS_EU_CAP.multiply(BigInteger.valueOf(getUIVCapacitorCount())))
+            .add(ItemBlockLapotronicEnergyUnit.UMV_WIRELESS_EU_CAP.multiply(BigInteger.valueOf(getUMVCapacitorCount())))
+            .add(LSCEnergyRules.subUHVWirelessReserve(capacitors));
     }
 
     /**
@@ -799,26 +788,15 @@ public class MTELapotronicSuperCapacitor extends MTEEnhancedMultiBlockBase<MTELa
     private long recalculateLossWithMaintenance(int repairStatus) {
         repairStatusCache = repairStatus;
 
-        long temp_capacity_divided = 0;
-
-        if (wirelessCapableCapacitors() == 0) {
-            temp_capacity_divided = capacity.divide(BigInteger.valueOf(100L * 86400L * 20L))
-                .longValue();
-        }
-
-        // Passive loss is multiplied by number of UHV+ caps. Minimum of 1 otherwise loss is 0 for non-UHV+ caps
-        // calculations.
-        if (wirelessCapableCapacitors() != 0) {
-            temp_capacity_divided = getUHVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UHV_CAP
-                + getUEVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UEV_CAP
-                + getUIVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UIV_CAP
-                + getUMVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UMV_CAP;
-        }
+        // Custom: capacitors below UHV have no passive loss. Only UHV+ caps drain a fixed amount each,
+        // so an LSC without UHV+ caps loses nothing.
+        final long passiveLoss = getUHVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UHV_CAP
+            + getUEVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UEV_CAP
+            + getUIVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UIV_CAP
+            + getUMVCapacitorCount() * MAX_PASSIVE_DRAIN_EU_PER_TICK_PER_UMV_CAP;
 
         // Passive loss is multiplied by number of maintenance issues.
-        // Maximum of 100,000 EU/t drained per UHV cell. The logic is 1% of EU capacity should be drained every 86400
-        // seconds (1 day).
-        return temp_capacity_divided * (getIdealStatus() - repairStatus + 1);
+        return passiveLoss * (getIdealStatus() - repairStatus + 1);
     }
 
     /**
@@ -1097,7 +1075,8 @@ public class MTELapotronicSuperCapacitor extends MTEEnhancedMultiBlockBase<MTELa
     }
 
     public boolean canUseWireless() {
-        return wirelessCapableCapacitors() != 0;
+        // Custom: wireless works with capacitors of any tier, not only UHV+
+        return LSCEnergyRules.realCapacitorCount(capacitors) > 0;
     }
 
     @Override
