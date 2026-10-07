@@ -23,6 +23,7 @@ import gregtech.loaders.postload.recipes.CokeOvenRecipes;
 import gregtech.loaders.postload.recipes.CompressorRecipes;
 import gregtech.loaders.postload.recipes.CuttingRecipes;
 import gregtech.loaders.postload.recipes.DistilleryRecipes;
+import gregtech.loaders.postload.recipes.EasyAutomationRecipes;
 import gregtech.loaders.postload.recipes.ElectrolyzerRecipes;
 import gregtech.loaders.postload.recipes.ElectromagneticSeparatorRecipes;
 import gregtech.loaders.postload.recipes.ExtractorRecipes;
@@ -69,6 +70,7 @@ public class MachineRecipeLoader implements Runnable {
         new AlloySmelterRecipes().run();
         new ArcFurnaceRecipes().run();
         new AssemblerRecipes().run();
+        new EasyAutomationRecipes().run(); // Custom: cheap ME and wireless hatch recipes
         new AssemblyLineRecipes().run();
         new AutoclaveRecipes().run();
         new BeamCrafterRecipes().run();
