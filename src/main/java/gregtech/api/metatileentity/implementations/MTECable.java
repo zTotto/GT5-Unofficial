@@ -99,7 +99,7 @@ public class MTECable extends MetaPipeEntity implements IMetaTileEntityCable, IL
         mVoltage = aVoltage;
         mInsulated = aInsulated;
         mCanShock = aCanShock;
-        mCableLossPerMeter = aCableLossPerMeter;
+        mCableLossPerMeter = 0; // Custom: lossless cables
     }
 
     public MTECable(String aName, float aThickNess, Materials aMaterial, long aCableLossPerMeter, long aAmperage,
@@ -111,7 +111,7 @@ public class MTECable extends MetaPipeEntity implements IMetaTileEntityCable, IL
         mVoltage = aVoltage;
         mInsulated = aInsulated;
         mCanShock = aCanShock;
-        mCableLossPerMeter = aCableLossPerMeter;
+        mCableLossPerMeter = 0; // Custom: lossless cables
     }
 
     @Override
