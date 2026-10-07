@@ -703,35 +703,10 @@ public abstract class MetaGeneratedTool extends MetaBaseItem
     public final boolean doDamage(ItemStack aStack, long aAmount) {
         if (!isItemStackUsable(aStack)) return false;
         if (aStack.stackSize <= 0) return false;
+        // Custom: GT tools never lose durability; electric tools still use energy
         Long[] tElectric = getElectricStats(aStack);
-        if (tElectric == null) {
-            long tNewDamage = getToolDamage(aStack) + aAmount;
-            setToolDamage(aStack, tNewDamage);
-            if (tNewDamage >= getToolMaxDamage(aStack)) {
-                IToolStats tStats = getToolStats(aStack);
-                if (tStats == null || GTUtility.setStack(aStack, tStats.getBrokenItem(aStack)) == null) {
-                    if (tStats != null && playSound) playSound(tStats);
-                    if (aStack.stackSize > 0) aStack.stackSize--;
-                }
-            }
-            return true;
-        }
-        if (use(aStack, (int) aAmount, null)) {
-            if (java.util.concurrent.ThreadLocalRandom.current()
-                .nextInt(0, 25) == 0) {
-                long tNewDamage = getToolDamage(aStack) + aAmount;
-                setToolDamage(aStack, tNewDamage);
-                if (tNewDamage >= getToolMaxDamage(aStack)) {
-                    IToolStats tStats = getToolStats(aStack);
-                    if (tStats == null || GTUtility.setStack(aStack, tStats.getBrokenItem(aStack)) == null) {
-                        if (tStats != null && playSound) playSound(tStats);
-                        if (aStack.stackSize > 0) aStack.stackSize--;
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
+        if (tElectric == null) return true;
+        return use(aStack, (int) aAmount, null);
     }
 
     protected void playSound(IToolStats aStats) {
