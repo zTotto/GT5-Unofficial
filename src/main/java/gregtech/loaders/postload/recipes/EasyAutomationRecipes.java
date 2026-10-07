@@ -28,24 +28,13 @@ public class EasyAutomationRecipes implements Runnable {
         ItemList.Hatch_Energy_LuV, ItemList.Hatch_Energy_ZPM, ItemList.Hatch_Energy_UV, ItemList.Hatch_Energy_UHV,
         ItemList.Hatch_Energy_UEV, ItemList.Hatch_Energy_UIV, ItemList.Hatch_Energy_UMV, ItemList.Hatch_Energy_UXV };
 
-    private static final IItemContainer[] DYNAMO_HATCHES = { ItemList.Hatch_Dynamo_ULV, ItemList.Hatch_Dynamo_LV,
-        ItemList.Hatch_Dynamo_MV, ItemList.Hatch_Dynamo_HV, ItemList.Hatch_Dynamo_EV, ItemList.Hatch_Dynamo_IV,
-        ItemList.Hatch_Dynamo_LuV, ItemList.Hatch_Dynamo_ZPM, ItemList.Hatch_Dynamo_UV, ItemList.Hatch_Dynamo_UHV,
-        ItemList.Hatch_Dynamo_UEV, ItemList.Hatch_Dynamo_UIV, ItemList.Hatch_Dynamo_UMV, ItemList.Hatch_Dynamo_UXV };
-
+    // No wireless dynamos: GT5 2.9 keeps the Wireless_Dynamo_Energy_* enum entries but no longer registers them.
     private static final IItemContainer[] WIRELESS_HATCHES = { ItemList.Wireless_Hatch_Energy_ULV,
         ItemList.Wireless_Hatch_Energy_LV, ItemList.Wireless_Hatch_Energy_MV, ItemList.Wireless_Hatch_Energy_HV,
         ItemList.Wireless_Hatch_Energy_EV, ItemList.Wireless_Hatch_Energy_IV, ItemList.Wireless_Hatch_Energy_LuV,
         ItemList.Wireless_Hatch_Energy_ZPM, ItemList.Wireless_Hatch_Energy_UV, ItemList.Wireless_Hatch_Energy_UHV,
         ItemList.Wireless_Hatch_Energy_UEV, ItemList.Wireless_Hatch_Energy_UIV, ItemList.Wireless_Hatch_Energy_UMV,
         ItemList.Wireless_Hatch_Energy_UXV };
-
-    private static final IItemContainer[] WIRELESS_DYNAMOS = { ItemList.Wireless_Dynamo_Energy_ULV,
-        ItemList.Wireless_Dynamo_Energy_LV, ItemList.Wireless_Dynamo_Energy_MV, ItemList.Wireless_Dynamo_Energy_HV,
-        ItemList.Wireless_Dynamo_Energy_EV, ItemList.Wireless_Dynamo_Energy_IV, ItemList.Wireless_Dynamo_Energy_LuV,
-        ItemList.Wireless_Dynamo_Energy_ZPM, ItemList.Wireless_Dynamo_Energy_UV, ItemList.Wireless_Dynamo_Energy_UHV,
-        ItemList.Wireless_Dynamo_Energy_UEV, ItemList.Wireless_Dynamo_Energy_UIV, ItemList.Wireless_Dynamo_Energy_UMV,
-        ItemList.Wireless_Dynamo_Energy_UXV };
 
     // Multi-amp hatches exist from EV to UXV.
     private static final IItemContainer[] ENERGY_HATCHES_4A = { CustomItemList.eM_energyMulti4_EV,
@@ -117,7 +106,6 @@ public class EasyAutomationRecipes implements Runnable {
     private static void addWirelessRecipes() {
         for (int tier = 0; tier < SENSORS.length; tier++) {
             addWireless(ENERGY_HATCHES[tier], SENSORS[tier], WIRELESS_HATCHES[tier]);
-            addWireless(DYNAMO_HATCHES[tier], SENSORS[tier], WIRELESS_DYNAMOS[tier]);
         }
         for (int i = 0; i < ENERGY_HATCHES_4A.length; i++) {
             IItemContainer sensor = SENSORS[VoltageIndex.EV + i];
