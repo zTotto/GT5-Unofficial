@@ -103,8 +103,6 @@ public final class GTPPOreAdapter implements IOreAdapter<Material> {
                 // if shouldFortune and not isNatural then get normal drops
                 if (fortune > 0) {
                     int aMinAmount = 1;
-                    // Max applicable fortune
-                    if (fortune > 3) fortune = 3;
                     long amount = (long) random.nextInt(fortune) + aMinAmount;
                     for (int i = 0; i < amount; i++) {
                         drops.add(info.material.getRawOre(1));

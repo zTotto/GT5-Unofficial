@@ -171,8 +171,6 @@ public final class BWOreAdapter implements IOreAdapter<Werkstoff> {
         if (!(stone instanceof StoneType stoneType)) return new ArrayList<>();
         if (!this.ores.containsKey(stoneType)) return new ArrayList<>();
 
-        if (!info.isNatural) fortune = 0;
-
         if (info.isSmall) {
             return getSmallOreDrops(random, info, fortune);
         } else {
@@ -245,9 +243,6 @@ public final class BWOreAdapter implements IOreAdapter<Werkstoff> {
             case Item -> drops.add(info.material.get(OrePrefixes.rawOre, info.stoneType.isRich() ? 2 : 1));
             case FortuneItem -> {
                 if (fortune > 0) {
-                    // Max applicable fortune
-                    if (fortune > 3) fortune = 3;
-
                     int addedDrops = random.nextInt(fortune + 2) - 1;
                     if (addedDrops < 0) addedDrops = 0;
 

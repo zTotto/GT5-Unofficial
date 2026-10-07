@@ -245,8 +245,6 @@ public final class GTOreAdapter implements IOreAdapter<Materials> {
 
         if (oreBlock == null) return new ArrayList<>();
 
-        if (!info.isNatural) fortune = 0;
-
         if (info.isSmall) {
             return getSmallOreDrops(random, info, fortune);
         } else {
@@ -319,9 +317,6 @@ public final class GTOreAdapter implements IOreAdapter<Materials> {
                 .add(GTOreDictUnificator.get(OrePrefixes.rawOre, info.material, info.stoneType.isRich() ? 2 : 1));
             case FortuneItem -> {
                 if (fortune > 0) {
-                    // Max applicable fortune
-                    if (fortune > 3) fortune = 3;
-
                     int addedDrops = random.nextInt(fortune + 2) - 1;
                     if (addedDrops < 0) addedDrops = 0;
 
