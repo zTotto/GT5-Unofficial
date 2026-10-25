@@ -94,7 +94,7 @@ public class MTECable extends MetaPipeEntity implements IMetaTileEntityCable, IL
         mAmperage = aAmperage;
         mVoltage = aVoltage;
         mInsulated = aInsulated;
-        mCanShock = aCanShock;
+        mCanShock = false; // Custom: bare wires never shock
         mCableLossPerMeter = 0; // Custom: lossless cables
     }
 
@@ -106,7 +106,7 @@ public class MTECable extends MetaPipeEntity implements IMetaTileEntityCable, IL
         mAmperage = aAmperage;
         mVoltage = aVoltage;
         mInsulated = aInsulated;
-        mCanShock = aCanShock;
+        mCanShock = false; // Custom: bare wires never shock
         mCableLossPerMeter = 0; // Custom: lossless cables
     }
 
