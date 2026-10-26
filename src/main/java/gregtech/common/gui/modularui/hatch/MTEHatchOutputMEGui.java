@@ -33,10 +33,7 @@ public class MTEHatchOutputMEGui extends MTEHatchBaseGui<MTEHatchOutputME> {
         IntSyncValue prioritySyncer = new IntSyncValue(provider::getPriority, provider::setPriority).allowC2S();
         BooleanSyncValue isCaching = new BooleanSyncValue(provider::getCacheMode, provider::setCacheMode).allowC2S();
         BooleanSyncValue isChecking = new BooleanSyncValue(provider::getCheckMode, provider::setCheckMode).allowC2S();
-        // The provider stores ticks, the player sets seconds.
-        IntSyncValue refreshSyncer = new IntSyncValue(
-            () -> provider.getRefreshTime() / MTEHatchOutputMEBase.TICKS_PER_SECOND,
-            seconds -> provider.setRefreshTime(seconds * MTEHatchOutputMEBase.TICKS_PER_SECOND)).allowC2S();
+        IntSyncValue refreshSyncer = new IntSyncValue(provider::getRefreshTime, provider::setRefreshTime).allowC2S();
 
         Flow mainRow = Flow.row()
             .coverChildren()
@@ -74,16 +71,14 @@ public class MTEHatchOutputMEGui extends MTEHatchBaseGui<MTEHatchOutputME> {
             new TextFieldWidget().size(40, 14)
                 .formatAsInteger(true)
                 .value(refreshSyncer)
-                .numbersInt(
-                    MTEHatchOutputMEBase.MIN_REFRESH_TIME / MTEHatchOutputMEBase.TICKS_PER_SECOND,
-                    Integer.MAX_VALUE / MTEHatchOutputMEBase.TICKS_PER_SECOND)
+                .numbersInt(MTEHatchOutputMEBase.MIN_REFRESH_TIME, Integer.MAX_VALUE)
                 .setMaxLength(10)
                 .tooltip(t -> {
                     t.addLine(StatCollector.translateToLocal("GT5U.hatch.outputme.refresh_time"));
                     t.addLine(
                         EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted(
                             "GT5U.hatch.outputme.refresh_time.tooltip",
-                            MTEHatchOutputMEBase.MIN_REFRESH_TIME / MTEHatchOutputMEBase.TICKS_PER_SECOND));
+                            MTEHatchOutputMEBase.MIN_REFRESH_TIME));
                 })
                 .marginLeft(3));
 
