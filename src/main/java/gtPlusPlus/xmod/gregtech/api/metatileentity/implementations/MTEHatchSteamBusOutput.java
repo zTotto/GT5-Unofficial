@@ -143,11 +143,6 @@ public class MTEHatchSteamBusOutput extends MTEHatchOutputBus {
     }
 
     @Override
-    public boolean pushOutputInventory() {
-        return false;
-    }
-
-    @Override
     public String[] getDescription() {
         return GTSplit.splitLocalizedWithSuffix("gt.blockmachines.output_bus_steam.desc", GTPPCore.GT_Tooltip.get());
     }
