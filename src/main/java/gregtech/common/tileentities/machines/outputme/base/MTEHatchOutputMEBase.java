@@ -76,6 +76,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.GTWaila;
 import gregtech.common.tileentities.machines.outputme.util.AECacheCounter;
+import gregtech.common.tileentities.machines.outputme.util.MEOutputFlushRules;
 import io.netty.buffer.ByteBuf;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
@@ -486,7 +487,7 @@ public abstract class MTEHatchOutputMEBase<T extends IAEStack<T>> {
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         if (aBaseMetaTileEntity.isServerSide()) {
             tickCounter = aTick;
-            if (tickCounter > (lastOutputTick + refreshTime)) flushCachedStack();
+            if (MEOutputFlushRules.isFlushDue(tickCounter, lastOutputTick, refreshTime)) flushCachedStack();
             if (tickCounter % 20 == 0) {
                 updateCell();
                 aBaseMetaTileEntity.setActive(wasActive);
@@ -508,15 +509,9 @@ public abstract class MTEHatchOutputMEBase<T extends IAEStack<T>> {
 
     public void flushCachedStack() {
         var proxy = getProxy();
-        final boolean empty = cache.isEmpty();
-        if (empty) {
-            // Nothing is waiting, so restart the interval here. If the clock only advanced on a real flush, idle time
-            // would bank up as an overdue flush and the first stack to arrive would go out immediately, so the setting
-            // would not actually space the flushes out.
-            lastOutputTick = tickCounter;
-        }
-        if (empty || !proxy.isActive()) {
-            // A pending cache on an offline grid keeps the clock untouched, so it flushes as soon as the grid is back.
+        if (cache.isEmpty() || !proxy.isActive()) {
+            // Custom: the clock only moves on a real flush. After a pause the first output goes out right away, later
+            // ones wait for the interval; a cache on an offline grid flushes as soon as the grid is back.
             return;
         }
         try {
