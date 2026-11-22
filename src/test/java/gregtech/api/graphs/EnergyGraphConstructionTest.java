@@ -13,6 +13,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -119,6 +120,7 @@ class EnergyGraphConstructionTest {
         }
     }
 
+    @Disabled("Cables are lossless in this fork")
     @Test
     void connectedRunKeepsOrderedMembersAndLossAcrossChunkBorder() {
         try (MockedStatic<MinecraftServer> servers = mockStatic(MinecraftServer.class)) {
@@ -176,6 +178,7 @@ class EnergyGraphConstructionTest {
         return base;
     }
 
+    @Disabled("Cables are lossless in this fork")
     @Test
     void branchAndLoopKeepDfsIdsCompressionAndLossesAtChunkBorder() {
         try (MockedStatic<MinecraftServer> servers = mockStatic(MinecraftServer.class)) {

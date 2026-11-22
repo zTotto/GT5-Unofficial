@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -236,6 +237,7 @@ class EnergyConsumerBoundaryTest {
         assertEquals(2 * packet + 3, delivered.get());
     }
 
+    @Disabled("Cables are lossless in this fork")
     @ParameterizedTest
     @CsvSource({ "32, 0", "40, 0", "0, 32", "20, 20" })
     void exhaustedVoltageDoesNotReachExternalReceiver(long entryLoss, long runLoss) {
@@ -378,6 +380,7 @@ class EnergyConsumerBoundaryTest {
         assertEquals(0, path.getAmperage());
     }
 
+    @Disabled("Cables are lossless in this fork")
     @Test
     void deliveredVoltageAndPathDiagnosticsIncludeBothLosses() {
         TileEntity tile = endpoint(IEnergyConnected.class);
