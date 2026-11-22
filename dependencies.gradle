@@ -36,7 +36,7 @@
 dependencies {
     api("com.github.GTNewHorizons:StructureLib:1.5.0:dev")
     api("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev")
-    api("com.github.GTNewHorizons:NotEnoughItems:2.9.12-GTNH:dev")
+    api("com.github.GTNewHorizons:NotEnoughItems:2.9.12-GTNH-recipe-queue.3+1e25a8849c:dev")
     api("com.github.GTNewHorizons:GTNHLib:0.12.9:dev")
     api("com.falsepattern:chunkapi-mc1.7.10:0.8.3:dev")
     api("com.falsepattern:endlessids-mc1.7.10:1.7.3:dev")

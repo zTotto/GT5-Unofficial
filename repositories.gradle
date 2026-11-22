@@ -1,6 +1,8 @@
 // Add any additional repositories for your dependencies here
 
 repositories {
+    // NEI with IRecipeQueue, built locally until it is released
+    mavenLocal()
     ivy {
         url = 'https://files.vexatos.com/'
         patternLayout {
