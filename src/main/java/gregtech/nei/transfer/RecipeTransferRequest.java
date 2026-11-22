@@ -20,7 +20,7 @@ import gregtech.api.util.item.GhostCircuitItemStackHandler;
  * @param fluid         fluid used per craft, null if the recipe uses none
  * @param circuitConfig circuit configuration of the recipe, {@link GhostCircuitItemStackHandler#NO_CONFIG} if it has
  *                      none
- * @param crafts        crafts for {@link Mode#ADD}
+ * @param crafts        crafts for {@link Mode#ADD} and {@link Mode#UP_TO}
  */
 record RecipeTransferRequest(List<Ingredient> ingredients, FluidStack fluid, int circuitConfig, Mode mode, int crafts) {
 
@@ -28,7 +28,9 @@ record RecipeTransferRequest(List<Ingredient> ingredients, FluidStack fluid, int
         /** As many crafts as fit, counting the ones already in the machine. */
         FILL,
         /** This many crafts more than the complete crafts already in the machine, or as many as possible up to it. */
-        ADD
+        ADD,
+        /** Up to this many crafts in the machine in total, for recipes queued from a crafting chain. */
+        UP_TO
     }
 
     private static final int MAX_INGREDIENTS = 64;

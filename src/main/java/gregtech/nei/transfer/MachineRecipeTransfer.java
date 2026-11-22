@@ -17,7 +17,8 @@ import gregtech.nei.transfer.RecipeTransferPlanner.Result;
 import gregtech.nei.transfer.RecipeTransferPlanner.Tank;
 
 /**
- * A recipe transfer between a player and a basic machine, planned and applied by the server.
+ * A recipe transfer between a player and a basic machine, planned and applied by the server. The client plans it too,
+ * to know what the server will do with a recipe queued from a crafting chain.
  */
 final class MachineRecipeTransfer {
 
@@ -29,6 +30,7 @@ final class MachineRecipeTransfer {
     /** Player inventory slots in the order items are taken from them: main inventory first, then the hotbar. */
     private final int[] order;
     private final RecipeFluid fluid;
+    private final RecipeTransferPlanner planner;
     private final Result result;
 
     MachineRecipeTransfer(MTEBasicMachine machine, EntityPlayer player, RecipeTransferRequest request) {
@@ -63,17 +65,31 @@ final class MachineRecipeTransfer {
                 ? machine.getStackSizeLimit(firstInput + slot, stack)
                 : 0,
             outputs);
-        result = new RecipeTransferPlanner(
+        planner = new RecipeTransferPlanner(
             request.ingredients(),
             fluid,
             machineState,
             inventory,
-            (alternative, stack) -> GTUtility.areStacksEqual(alternative, stack, true))
-                .plan(request.mode(), request.crafts());
+            (alternative, stack) -> GTUtility.areStacksEqual(alternative, stack, true));
+        result = planner.plan(request.mode(), request.crafts());
+    }
+
+    RecipeTransferRequest request() {
+        return request;
     }
 
     Result result() {
         return result;
+    }
+
+    /**
+     * Whether the machine holds a complete craft of this recipe, with nothing else in its input slots and the circuit
+     * the recipe wants, so it will process it.
+     */
+    boolean holdsRecipe() {
+        if (!planner.holdsRecipe()) return false;
+        if (!machine.allowSelectCircuit()) return true;
+        return new GhostCircuitItemStackHandler(machine).getCircuitConfig() == validCircuit(request.circuitConfig());
     }
 
     /** Writes a transferred result into the machine and the player inventory. */
@@ -95,6 +111,37 @@ final class MachineRecipeTransfer {
         if (machine.allowSelectCircuit()) {
             new GhostCircuitItemStackHandler(machine).setCircuitConfig(validCircuit(request.circuitConfig()));
         }
+        machine.getBaseMetaTileEntity()
+            .markInventoryBeenModified();
+    }
+
+    /**
+     * Moves what is in the machine output slots into the player inventory, as far as there is room. Used when a
+     * crafting chain loads nothing into the machine, which would otherwise leave the outputs in the machine.
+     */
+    static void collectOutputs(MTEBasicMachine machine, EntityPlayer player) {
+        ItemStackHandler machineInventory = machine.inventoryHandler;
+        ItemStack[] outputs = slots(machineInventory, machine.getOutputSlot(), machine.mOutputItems.length);
+        int[] order = inventoryOrder(player);
+        ItemStack[] inventory = orderedInventory(player, order);
+        for (int i = 0; i < inventory.length; i++) {
+            if (inventory[i] != null) inventory[i] = inventory[i].copy();
+        }
+
+        boolean moved = false;
+        for (int i = 0; i < outputs.length; i++) {
+            if (outputs[i] == null) continue;
+            ItemStack stack = outputs[i].copy();
+            int before = stack.stackSize;
+            outputs[i] = RecipeTransferPlanner.addToInventory(inventory, stack) ? null : stack;
+            moved |= outputs[i] == null || outputs[i].stackSize != before;
+        }
+        if (!moved) return;
+
+        setSlots(machineInventory, machine.getOutputSlot(), outputs);
+        ItemStack[] playerInventory = player.inventory.mainInventory;
+        for (int i = 0; i < order.length; i++) playerInventory[order[i]] = inventory[i];
+        player.inventory.markDirty();
         machine.getBaseMetaTileEntity()
             .markInventoryBeenModified();
     }

@@ -1,5 +1,6 @@
 package gregtech.nei.transfer;
 
+import static gregtech.nei.transfer.RecipeTransferPlanner.Outcome.ALREADY_LOADED;
 import static gregtech.nei.transfer.RecipeTransferPlanner.Outcome.NOTHING_TO_ADD;
 import static gregtech.nei.transfer.RecipeTransferPlanner.Outcome.NO_ROOM_FOR_RETURNED_ITEMS;
 import static gregtech.nei.transfer.RecipeTransferPlanner.Outcome.OTHER_FLUID_IN_TANK;
@@ -398,6 +399,37 @@ class RecipeTransferPlannerTest {
     }
 
     @Test
+    void loadsUpToTheQueuedCrafts() {
+        Result result = upTo(4, inputs(), inventory(stack(CHEST, 2), stack(DIRT, 64)));
+
+        assertEquals(2, result.crafts());
+        assertStacks(result.inputs(), stack(CHEST, 2), stack(DIRT, 16));
+    }
+
+    @Test
+    void completesTheQueuedCraftsAlreadyStarted() {
+        Result result = upTo(2, inputs(stack(CHEST, 1), stack(DIRT, 8)), inventory(stack(CHEST, 5), stack(DIRT, 64)));
+
+        assertEquals(TRANSFERRED, result.outcome());
+        assertEquals(2, result.crafts());
+        assertStacks(result.inputs(), stack(CHEST, 2), stack(DIRT, 16));
+    }
+
+    @Test
+    void stopsWhenTheQueuedCraftsAreLoaded() {
+        Result result = upTo(2, inputs(stack(CHEST, 2), stack(DIRT, 16)), inventory(stack(CHEST, 5), stack(DIRT, 64)));
+
+        assertEquals(ALREADY_LOADED, result.outcome());
+    }
+
+    @Test
+    void queuedCraftsWithoutItemsAddNothing() {
+        Result result = upTo(2, inputs(), inventory(stack(DIRT, 64)));
+
+        assertEquals(NOTHING_TO_ADD, result.outcome());
+    }
+
+    @Test
     void takesWhatTheMachineMadeBeforeTheInventory() {
         Result result = withOutputs(
             2,
@@ -450,6 +482,40 @@ class RecipeTransferPlannerTest {
         assertEquals(1, result.crafts());
         assertStacks(result.outputs());
         assertStacks(result.inventory(), stack(DIRT, 8));
+    }
+
+    @Test
+    void holdsTheRecipeOnlyWithACompleteCraftAndNothingElse() {
+        assertEquals(true, holds(CHEST_RECIPE, inputs(stack(CHEST, 1), stack(DIRT, 8))));
+        assertEquals(false, holds(CHEST_RECIPE, inputs(stack(CHEST, 1), stack(DIRT, 3))));
+        assertEquals(false, holds(CHEST_RECIPE, inputs(stack(CHEST, 1), stack(DIRT, 8), stack(STICK, 3))));
+        assertEquals(false, holds(CHEST_RECIPE, inputs()));
+    }
+
+    @Test
+    void aLeftoverShapeDoesNotHoldTheMachine() {
+        List<Ingredient> recipe = List.of(ingredient(0, new ItemStack(SHAPE)), ingredient(2, new ItemStack(PLANK)));
+
+        assertEquals(false, holds(recipe, inputs(stack(SHAPE, 1))));
+        assertEquals(true, holds(recipe, inputs(stack(SHAPE, 1), stack(PLANK, 2))));
+    }
+
+    private static boolean holds(List<Ingredient> recipe, ItemStack[] inputs) {
+        return new RecipeTransferPlanner(
+            recipe,
+            null,
+            new Machine(inputs, STACK_LIMIT, new ItemStack[0]),
+            inventory(),
+            SAME_ITEM).holdsRecipe();
+    }
+
+    private static Result upTo(int crafts, ItemStack[] inputs, ItemStack[] inventory) {
+        return new RecipeTransferPlanner(
+            CHEST_RECIPE,
+            null,
+            new Machine(inputs, STACK_LIMIT, new ItemStack[0]),
+            inventory,
+            SAME_ITEM).plan(Mode.UP_TO, crafts);
     }
 
     private static Result withOutputs(int crafts, ItemStack[] inputs, ItemStack[] outputs, ItemStack[] inventory) {

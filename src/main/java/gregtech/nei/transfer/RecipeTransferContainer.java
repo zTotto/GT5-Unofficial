@@ -1,6 +1,7 @@
 package gregtech.nei.transfer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,9 @@ import com.cleanroommc.modularui.utils.item.SlotItemHandler;
 
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.IRecipeOverlayRenderer;
+import codechicken.nei.api.IRecipeQueue;
+import codechicken.nei.api.IRecipeQueue.QueuedRecipe;
+import codechicken.nei.item.ItemFluidDisplay;
 import codechicken.nei.recipe.GuiOverlayButton.ItemOverlayState;
 import codechicken.nei.recipe.IRecipeHandler;
 import codechicken.nei.recipe.StackInfo;
@@ -26,16 +30,19 @@ import gregtech.api.recipe.RecipeCategory;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.item.GhostCircuitItemStackHandler;
+import gregtech.nei.GTNEIDefaultHandler;
 import gregtech.nei.GTNEIDefaultHandler.FixedPositionedStack;
 import gregtech.nei.transfer.RecipeTransferRequest.Ingredient;
 import gregtech.nei.transfer.RecipeTransferRequest.Mode;
 
 /**
  * Client side container of a basic machine GUI. ModularUI2 hands NEI an overlay handler for the recipe categories it
- * declares, so the NEI "+" button and the overlay key work in the machine GUI.
+ * declares, so the NEI "+" button and the overlay key work in the machine GUI. As an {@link IRecipeQueue}, it also
+ * loads the next recipe of a crafting chain when the player uses "Craft Items".
  */
 @SideOnly(Side.CLIENT)
-public class RecipeTransferContainer extends ModularContainer implements INEIRecipeTransfer<GuiContainer> {
+public class RecipeTransferContainer extends ModularContainer
+    implements INEIRecipeTransfer<GuiContainer>, IRecipeQueue {
 
     private final MTEBasicMachine machine;
     private final RecipeTransferSyncHandler syncHandler;
@@ -62,6 +69,66 @@ public class RecipeTransferContainer extends ModularContainer implements INEIRec
         Mode mode = multiplier == 0 ? Mode.FILL : Mode.ADD;
         syncHandler.requestTransfer(createRequest(gui, recipe, recipeIndex, mode, multiplier));
         return multiplier;
+    }
+
+    /**
+     * "Craft Items" on a crafting chain: loads the next recipe of the chain this machine makes. A recipe whose
+     * complete craft is already in the input slots keeps the machine until it is done, so recipes of the same chain do
+     * not push each other out. The client plans the transfers too, to pick the recipe the server will load.
+     */
+    @Override
+    public boolean queueRecipes(GuiContainer gui, List<QueuedRecipe> recipes) {
+        List<MachineRecipeTransfer> transfers = new ArrayList<>();
+        for (QueuedRecipe recipe : recipes) {
+            if (!(recipe.handler instanceof GTNEIDefaultHandler handler) || !Arrays.asList(idents)
+                .contains(handler.getOverlayIdentifier())) continue;
+            RecipeTransferRequest request = createRequest(
+                gui,
+                recipe.handler,
+                recipe.recipeIndex,
+                Mode.UP_TO,
+                (int) Math.min(recipe.crafts, Integer.MAX_VALUE));
+            transfers.add(new MachineRecipeTransfer(machine, gui.mc.thePlayer, request));
+        }
+
+        // The server carries out the chosen transfer; when it adds nothing, it still collects the outputs
+        for (MachineRecipeTransfer transfer : transfers) {
+            if (transfer.holdsRecipe()) {
+                syncHandler.requestTransfer(transfer.request());
+                return true;
+            }
+        }
+        // A recipe blocked by another fluid in the tank or a full inventory gives way to the ones after it, and is
+        // only sent, for the server to report the problem, when nothing else can be loaded
+        MachineRecipeTransfer blocked = null;
+        for (MachineRecipeTransfer transfer : transfers) {
+            switch (transfer.result()
+                .outcome()) {
+                case TRANSFERRED, ALREADY_LOADED -> {
+                    syncHandler.requestTransfer(transfer.request());
+                    return true;
+                }
+                case OTHER_FLUID_IN_TANK, NO_ROOM_FOR_RETURNED_ITEMS -> {
+                    if (blocked == null) blocked = transfer;
+                }
+                case NOTHING_TO_ADD -> {}
+            }
+        }
+        if (blocked != null) syncHandler.requestTransfer(blocked.request());
+        else syncHandler.requestOutputCollection();
+        return true;
+    }
+
+    /** The craft the machine is making and the fluid in its tank, which NEI cannot see in the slots. */
+    @Override
+    public List<ItemStack> getItemsOutsideSlots() {
+        List<ItemStack> items = new ArrayList<>();
+        for (ItemStack stack : syncHandler.getProcessing()) {
+            if (stack != null) items.add(stack.copy());
+        }
+        FluidStack inTank = machine.getFillableStack();
+        if (inTank != null && inTank.amount > 0) items.add(ItemFluidDisplay.createStack(inTank.copy()));
+        return items;
     }
 
     private RecipeTransferRequest createRequest(GuiContainer gui, IRecipeHandler recipe, int recipeIndex, Mode mode,

@@ -75,7 +75,9 @@ final class RecipeTransferPlanner {
         /** The items that are not part of the recipe do not fit back in the inventory. */
         NO_ROOM_FOR_RETURNED_ITEMS,
         /** The tank holds another fluid. */
-        OTHER_FLUID_IN_TANK
+        OTHER_FLUID_IN_TANK,
+        /** With {@link Mode#UP_TO}, the machine already holds that many crafts. */
+        ALREADY_LOADED
     }
 
     /**
@@ -127,15 +129,17 @@ final class RecipeTransferPlanner {
         }
     }
 
-    /** @param crafts crafts for {@link Mode#ADD} */
+    /** @param crafts crafts for {@link Mode#ADD} and {@link Mode#UP_TO} */
     Result plan(Mode mode, int crafts) {
         if (fluid != null && fluid.tank()
             .otherFluid()) return Result.failed(Outcome.OTHER_FLUID_IN_TANK);
 
         int current = currentCrafts();
+        if (mode == Mode.UP_TO && current >= crafts) return Result.failed(Outcome.ALREADY_LOADED);
         int wanted = switch (mode) {
             case FILL -> upperBound();
             case ADD -> saturatedAdd(current, crafts);
+            case UP_TO -> crafts;
         };
         if (wanted <= current) return Result.failed(Outcome.NOTHING_TO_ADD);
 
@@ -165,6 +169,16 @@ final class RecipeTransferPlanner {
             if (stack != null && addToInventory(best.inventory, stack)) best.outputs[i] = null;
         }
         return new Result(Outcome.TRANSFERRED, best.inputs, best.outputs, best.inventory, best.tankAmount, best.crafts);
+    }
+
+    /**
+     * Whether the machine holds at least one complete craft of this recipe and nothing else in its input slots, so it
+     * will process it. A leftover mold or an incomplete craft does not count.
+     */
+    boolean holdsRecipe() {
+        return foreign.isEmpty() && currentCrafts() >= 1
+            && inMachine.stream()
+                .anyMatch(stacks -> !stacks.isEmpty());
     }
 
     /** Complete crafts in the input slots. Recipes that consume nothing count as one when complete. */
@@ -350,7 +364,7 @@ final class RecipeTransferPlanner {
      * Adds the stack to the inventory, merging it first. Returns false, with the rest left in the stack, if it does not
      * all fit.
      */
-    private static boolean addToInventory(ItemStack[] inventory, ItemStack stack) {
+    static boolean addToInventory(ItemStack[] inventory, ItemStack stack) {
         for (ItemStack slot : inventory) {
             if (slot == null || !sameKind(slot, stack)) continue;
             int moved = Math.min(stack.stackSize, slot.getMaxStackSize() - slot.stackSize);
